@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 def simpleCollectiveDynamics(weightMatrix,inputConst=0,noiseVar=1,tFinal=10,deltat=1e-3,
-    initialState=None):
+    initialState=None,seed=None):
     """
     Simulates the following stochastic process:
     
@@ -27,6 +27,8 @@ def simpleCollectiveDynamics(weightMatrix,inputConst=0,noiseVar=1,tFinal=10,delt
                                         given state.  If None, initial state defaults to
                                         all zeros.
     """
+    np.random.seed(seed)
+    
     N = len(weightMatrix)
     # make sure the weight matrix is square
     assert(len(weightMatrix[0])==N)
