@@ -35,7 +35,11 @@ def landauAnalysis(data,codeDir='./'):
     
     # read result
     outfile = "{}_LTAoutput.csv".format(tempName)
-    resultList = [ np.loadtxt(outfile,delimiter=',',skiprows=i,max_rows=1) for i in range(7) ]
+    try:
+        resultList = [ np.loadtxt(outfile,delimiter=',',skiprows=i,max_rows=1) for i in range(7) ]
+    except(ValueError):
+        print("landauAnalysis: ERROR in Mathematica output.  Returning nans.")
+        return np.nan,np.nan,np.nan,np.nan,np.nan,np.nan
     mu, valList = resultList[0], resultList[1]
     vecList = [ np.real_if_close(re + (0+1j)*im)
                 for re,im in zip(resultList[2].reshape(dim,dim),resultList[3].reshape(dim,dim)) ]
