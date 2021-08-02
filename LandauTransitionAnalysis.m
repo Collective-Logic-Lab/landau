@@ -25,7 +25,7 @@ LandauTransitionDistributionRelativeLogPDF[x_,mu_,J_,nu_,c_,d_]:=-(1/2)(x-mu).J.
 
 (* ::Input::Initialization:: *)
 (*for now we'll restrict nu to be along an eigenvector of J---the index of nu in Jvals is nuIndex*)
-logNormalizationDiagonal[Jvals_,nuIndex_,c_,d_]:=((Length[Jvals]-1)/2)Log[2\[Pi]]+0.5(Log[Jvals[[nuIndex]]]-Plus@@Log[Jvals])+Log[If[c>0,(c E^(c^2/(8 d)) BesselK[1/4,c^2/(8 d)])/(Sqrt[2] Sqrt[c d Jvals[[nuIndex]]]),(E^(c^2/(8 d)) \[Pi] (BesselI[-(1/4),c^2/(8 d)]+BesselI[1/4,c^2/(8 d)]))/(2 Sqrt[-((d Jvals[[nuIndex]])/c)])]]
+logNormalizationDiagonal[Jvals_,nuIndex_,c_,d_]:=((Length[Jvals]-1)/2)Log[2\[Pi]]+0.5(Log[Jvals[[nuIndex]]]-Plus@@Log[Jvals])+Log[If[c>0,(c Exp[(c^2/(8 d))] BesselK[1/4,c^2/(8 d)])/(Sqrt[2] Sqrt[c d Jvals[[nuIndex]]]),(Exp[(c^2/(8 d))] \[Pi] (BesselI[-(1/4),c^2/(8 d)]+BesselI[1/4,c^2/(8 d)]))/(2 Sqrt[-((d Jvals[[nuIndex]])/c)])]]
 
 
 (* ::Input::Initialization:: *)
