@@ -63,7 +63,7 @@ LandauTransitionDistributionRelativeLogPDF[x,mu,J,nu/Norm[nu],1,0]-logNormalizat
 
 
 (* ::Input::Initialization:: *)
-LandauMaxLikelihood[dataFull_]:=
+LandauMaxLikelihood[dataFull_, dmin_ : 0.001]:=
 With[
 {Jinit=PseudoInverse[Covariance[dataFull](Length[dataFull]-1)/Length[dataFull]],
 muInit=Mean[dataFull]},
@@ -77,7 +77,7 @@ Table[
 If[Re[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,1,1],{i,1,Length[dataFull]}]]!=Abs[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,1,1],{i,1,Length[dataFull]}]],somethingIsWrong,
 (*Do the actual minimization*)
 Quiet[
-FindMinimum[{-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,c,d],{i,1,Length[dataFull]}]+Sum[GaussianLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs],{i,1,Length[dataFull]}],{d>0}},{{c,1},{d,1}}],
+FindMinimum[{-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,c,d],{i,1,Length[dataFull]}]+Sum[GaussianLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs],{i,1,Length[dataFull]}],{d>dmin}},{{c,1},{d,1}}],
 {FindMinimum::nrnum,FindMinimum::eit}]],
 {nuIndex,1,Min[Length[dataFull]-1,Length[First[dataFull]]]}
 ]}
