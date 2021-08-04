@@ -12,11 +12,12 @@ from landauAnalysis import landauAnalysis
 import time
 import numpy as np
 import pandas as pd
+import subprocess # for getGitHash
 from toolbox.simplePickle import save
 
 
-def runMultipleMus(mus,originalWeightMatrix,Nsamples=100,tFinal=100,seedStart=123,
-    verbose=True):
+def runMultipleMus(mus,originalWeightMatrix,baseDict={},
+    Nsamples=100,tFinal=100,seedStart=123,verbose=True):
     """
     Run sampling of final states for multiple interaction strengths mu
     that multiply values of the network specified by originalWeightMatrix.
@@ -25,6 +26,8 @@ def runMultipleMus(mus,originalWeightMatrix,Nsamples=100,tFinal=100,seedStart=12
     """
 
     dataDict = {}
+    for mu in mus:
+        dataDict[mu] = baseDict
 
     # loop over mu (interaction strength)
     for muIndex,mu in enumerate(mus):
@@ -55,7 +58,7 @@ def runMultipleMus(mus,originalWeightMatrix,Nsamples=100,tFinal=100,seedStart=12
         sampleMean,valList,vecList,llList,cList,dList = landauAnalysis(finalStates)
         landauTimeMinutes = (time.time() - startTime)/60.
         
-        dataDict[mu] = {'mu': mu,
+        dataDict[mu].update( {'mu': mu,
                         'originalWeightMatrix': originalWeightMatrix,
                         'Nsamples': Nsamples,
                         'tFinal': tFinal,
@@ -69,23 +72,30 @@ def runMultipleMus(mus,originalWeightMatrix,Nsamples=100,tFinal=100,seedStart=12
                         'llList': llList,
                         'cList': cList,
                         'dList': dList,
-                       }
+                       } )
         
         if verbose:
             print("runMultipleMus: Done with mu = {}".format(mu))
                        
     return dataDict
         
+def getGitHash(dir='./'):
+    """
+    Get the hash code for the current HEAD state of the git repository
+    in directory 'dir'.
+    """
+    hashVal = subprocess.check_output(['git','rev-parse','HEAD'],cwd=dir)
+    return hashVal.strip().decode()
 
 if __name__ == '__main__':
 
     # set up parameters of run
-    Ncomponents = 10
-    Nsamples = 10 #40 #100
+    Ncomponents = 10 #50 #100 #10
+    Nsamples = 100 #100
     tFinal = 100
     networkName = 'allToAll'
-    muMin,muMax = 0.3,0.7
-    Nmus = 3
+    muMin,muMax = 0./Ncomponents,2./Ncomponents
+    Nmus = 101 #11 #101
     seedStart = 123
         
     mus = np.linspace(muMin,muMax,Nmus)
@@ -94,18 +104,20 @@ if __name__ == '__main__':
     else:
         raise(Exception)
 
+    baseDict = {'networkName': networkName,
+                'Ncomponents': Ncomponents,
+                'gitHash': getGitHash(),
+               }
+
     # run the simulations and analysis
     dataDict = runMultipleMus(mus,
                               weightMatrix,
+                              baseDict=baseDict,
                               Nsamples=Nsamples,
                               tFinal=tFinal,
                               seedStart=seedStart)
 
     # save data
-    for mu in dataDict.keys():
-        dataDict[mu].update({'networkName': networkName,
-                             'Ncomponents': Ncomponents,
-                            })
     filename = 'LandauTestData_{}_Ncomponents{}_Nmus{}.dat'.format(
                 networkName,Ncomponents,Nmus)
     save(dataDict,filename)
