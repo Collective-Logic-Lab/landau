@@ -63,6 +63,12 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
             landauAnalysis(finalStates,numNuMax=numNuMax)
         landauTimeMinutes = (time.time() - startTime)/60.
         
+        # deal with case when the number of tested dimensions is 1
+        if np.size(llList) == 1:
+            llList = llList.reshape([1])
+            cList = cList.reshape([1])
+            dList = dList.reshape([1])
+        
         dataDict[mu].update( {'mu': mu,
                         'originalWeightMatrix': originalWeightMatrix,
                         'Nsamples': Nsamples,
@@ -95,14 +101,14 @@ def getGitHash(dir='./'):
 if __name__ == '__main__':
 
     # set up parameters of run
-    Ncomponents = 10 #91 #10 #50 #100 #10
+    Ncomponents = 91 #10 #50 #100 #10
     Nsamples = 100 #100
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
-    Nmus = 11 #101
+    Nmus = 3 #11 #101
     seedStart = 123
-    numNuMax = 3 # 15
+    numNuMax = 1 #3 # 15
         
     mus = np.linspace(muMin,muMax,Nmus)
     if networkName == 'allToAll':
