@@ -27,7 +27,7 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
 
     dataDict = {}
     for mu in mus:
-        dataDict[mu] = baseDict
+        dataDict[mu] = baseDict.copy()
 
     # loop over mu (interaction strength)
     for muIndex,mu in enumerate(mus):
