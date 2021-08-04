@@ -11,7 +11,7 @@ from subprocess import call
 import numpy as np
 import os
 
-def landauAnalysis(data,codeDir='./'):
+def landauAnalysis(data,numNuMax=10,codeDir='./'):
     """
     Uses Mathematica code to run Landau transition analysis.
     
@@ -30,7 +30,7 @@ def landauAnalysis(data,codeDir='./'):
     np.savetxt(datafile,data,delimiter=',')
     
     # call mathematica code
-    call([codeDir+"/runLandauTransitionAnalysis.wls",datafile])
+    call([codeDir+"/runLandauTransitionAnalysis.wls",datafile,str(numNuMax)])
     os.remove(datafile)
     
     # read result

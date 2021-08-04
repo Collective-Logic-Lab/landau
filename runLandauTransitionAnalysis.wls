@@ -5,7 +5,9 @@
 (* Bryan Daniels *)
 (* 2020/11/16 *)
 
-(* Input: Data matrix (#samples)x(#dimensions) *)
+(* Input: *)
+(*  - Data matrix (#samples)x(#dimensions) *)
+(*  - numNuMax *) 
 
 (* Output: csv with 6 lines: *)
 (*  - fitMu vector (#dimensions) *)
@@ -26,11 +28,14 @@ Print["runLandauTransitionAnalysis: Reading data from "<>inputFilename];
 data = Import[inputFilename];
 
 
+numNuMax = ToExpression[$ScriptCommandLine[[3]]];
+
+
 Print["DEBUG: $ProcessorCount = "<>ToString[$ProcessorCount]]
 
 
 Print["runLandauTransitionAnalysis: Running analysis..."];
-result = LandauMaxLikelihood[data];
+result = LandauMaxLikelihood[data,numNuMax];
 
 
 (*

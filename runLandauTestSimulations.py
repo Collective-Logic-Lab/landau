@@ -17,12 +17,16 @@ from toolbox.simplePickle import save
 
 
 def runMultipleMus(mus,originalWeightMatrix,baseDict={},
-    Nsamples=100,tFinal=100,seedStart=123,verbose=True):
+    Nsamples=100,tFinal=100,seedStart=123,numNuMax=10,verbose=True):
     """
     Run sampling of final states for multiple interaction strengths mu
     that multiply values of the network specified by originalWeightMatrix.
     
     Returns dataDict indexed by mu.
+    
+    Note that the lists valList, vecList, llList, cList, and dList
+    are reversed from their counterparts in Mathematica.  This makes
+    the smallest indices correspond to largest variance.
     """
 
     dataDict = {}
@@ -55,7 +59,8 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
         
         # run Landau analysis on samples of final states
         startTime = time.time()
-        sampleMean,valList,vecList,llList,cList,dList = landauAnalysis(finalStates)
+        sampleMean,valList,vecList,llList,cList,dList = \
+            landauAnalysis(finalStates,numNuMax=numNuMax)
         landauTimeMinutes = (time.time() - startTime)/60.
         
         dataDict[mu].update( {'mu': mu,
@@ -67,11 +72,11 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
                         'simTimeMinutes': simTimeMinutes,
                         'landauTimeMinutes': landauTimeMinutes,
                         'sampleMean': sampleMean,
-                        'valList': valList,
-                        'vecList': vecList,
-                        'llList': llList,
-                        'cList': cList,
-                        'dList': dList,
+                        'valList': valList[::-1],
+                        'vecList': vecList[::-1],
+                        'llList': llList[::-1],
+                        'cList': cList[::-1],
+                        'dList': dList[::-1],
                        } )
         
         if verbose:
@@ -90,13 +95,14 @@ def getGitHash(dir='./'):
 if __name__ == '__main__':
 
     # set up parameters of run
-    Ncomponents = 10 #50 #100 #10
+    Ncomponents = 10 #91 #10 #50 #100 #10
     Nsamples = 100 #100
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
-    Nmus = 101 #11 #101
+    Nmus = 11 #101
     seedStart = 123
+    numNuMax = 3 # 15
         
     mus = np.linspace(muMin,muMax,Nmus)
     if networkName == 'allToAll':
@@ -107,6 +113,7 @@ if __name__ == '__main__':
     baseDict = {'networkName': networkName,
                 'Ncomponents': Ncomponents,
                 'gitHash': getGitHash(),
+                'numNuMax': numNuMax,
                }
 
     # run the simulations and analysis
@@ -115,6 +122,7 @@ if __name__ == '__main__':
                               baseDict=baseDict,
                               Nsamples=Nsamples,
                               tFinal=tFinal,
+                              numNuMax=numNuMax,
                               seedStart=seedStart)
 
     # save data
