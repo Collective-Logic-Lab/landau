@@ -22,15 +22,24 @@ def landauSimulationData(datafile):
     bistableDList = []
     bistableEigvalList = []
     for mu in muList:
-        # find dimension with most evidence for bistability
-        bistableIndex = np.argmin(dataDict[mu]['llList'])
-        
-        # extract bistability parameters for max bistability dimension
-        bistableIndexList.append(bistableIndex)
-        bistableLikelihoodList.append(dataDict[mu]['llList'][bistableIndex])
-        bistableCList.append(dataDict[mu]['cList'][bistableIndex])
-        bistableDList.append(dataDict[mu]['dList'][bistableIndex])
-        bistableEigvalList.append(dataDict[mu]['valList'][bistableIndex])
+        if type(dataDict[mu]['llList']) != float:
+            # find dimension with most evidence for bistability
+            bistableIndex = np.argmin(dataDict[mu]['llList'])
+            
+            # extract bistability parameters for max bistability dimension
+            bistableIndexList.append(bistableIndex)
+            bistableLikelihoodList.append(dataDict[mu]['llList'][bistableIndex])
+            bistableCList.append(dataDict[mu]['cList'][bistableIndex])
+            bistableDList.append(dataDict[mu]['dList'][bistableIndex])
+            bistableEigvalList.append(dataDict[mu]['valList'][bistableIndex])
+        else: # there was an error in the Mathematica code
+            bistableIndex = np.nan
+            
+            bistableIndexList.append(bistableIndex)
+            bistableLikelihoodList.append(np.nan)
+            bistableCList.append(np.nan)
+            bistableDList.append(np.nan)
+            bistableEigvalList.append(np.nan)
         
     dfData = {'mu': muList,
               'bistable index': bistableIndexList,
@@ -39,6 +48,9 @@ def landauSimulationData(datafile):
               'bistable d': bistableDList,
               'bistable eigenvalue': bistableEigvalList,
               'network name': [dataDict[mu]['networkName'] for mu in muList],
+              'Ncomponents': [dataDict[mu]['Ncomponents'] for mu in muList],
+              'Nsamples': [dataDict[mu]['Nsamples'] for mu in muList],
+              'tFinal': [dataDict[mu]['tFinal'] for mu in muList],
               'simulation time (m)': [dataDict[mu]['simTimeMinutes'] for mu in muList],
               'landau time (m)':  [dataDict[mu]['landauTimeMinutes'] for mu in muList],
               }
