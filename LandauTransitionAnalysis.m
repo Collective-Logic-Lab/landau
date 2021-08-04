@@ -82,7 +82,7 @@ If[Re[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,
 Quiet[
 FindMinimum[{-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,c,d],{i,1,Nsamples}]+Sum[GaussianLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs],{i,1,Nsamples}],{d>dmin}},{{c,1},{d,1}}],
 {FindMinimum::nrnum,FindMinimum::eit}]],
-{nuIndex,Max[1,maxNuIndex-numNuMax],maxNuIndex}
+{nuIndex,Max[1,maxNuIndex-numNuMax+1],maxNuIndex}
 ]}
 ]
 ]
