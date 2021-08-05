@@ -107,7 +107,7 @@ if __name__ == '__main__':
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
-    Nmus = 11 #101
+    Nmus = 51 #11 #101
     seedStart = 123
     numNuMax = 1 #3 # 15
         
