@@ -113,13 +113,13 @@ if __name__ == '__main__':
         
     # if command line argument is given, use it to modify seedStart
     if len(sys.argv) == 2:
-        seedStartModifier = int(sys.argv[1])
+        runIndex = int(sys.argv[1])
     elif len(sys.argv) > 2:
-        print("Usage: python runLandauTestSimulations.py [seedStartModifier]")
+        print("Usage: python runLandauTestSimulations.py [runIndex]")
         exit()
     else:
-        seedStartModifier = 0
-    seedStart += 12345*seedStartModifier
+        runIndex = 0
+    seedStart += 12345*runIndex
 
     mus = np.linspace(muMin,muMax,Nmus)
     if networkName == 'allToAll':
@@ -131,6 +131,7 @@ if __name__ == '__main__':
                 'Ncomponents': Ncomponents,
                 'gitHash': getGitHash(),
                 'numNuMax': numNuMax,
+                'runIndex': runIndex,
                }
 
     # run the simulations and analysis
@@ -144,7 +145,7 @@ if __name__ == '__main__':
 
     # save data
     filename = 'LandauTestData_{}_Ncomponents{}_Nmus{}_run{}.dat'.format(
-                networkName,Ncomponents,Nmus,seedStartModifier)
+                networkName,Ncomponents,Nmus,runIndex)
     save(dataDict,filename)
     print("runLandauTestSimulations: Saved data to {}".format(filename))
 
