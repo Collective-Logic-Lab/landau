@@ -10,6 +10,7 @@
 from criticalDynamics import simpleCollectiveDynamics,allToAllNetworkAdjacency
 from landauAnalysis import landauAnalysis
 import time
+import sys
 import numpy as np
 import pandas as pd
 import subprocess # for getGitHash
@@ -101,7 +102,7 @@ def getGitHash(dir='./'):
 if __name__ == '__main__':
 
     # set up parameters of run
-    Ncomponents = 91 #10 #50 #100 #10
+    Ncomponents = 10 #91 #10 #50 #100 #10
     Nsamples = 100 #100
     tFinal = 100
     networkName = 'allToAll'
@@ -110,6 +111,16 @@ if __name__ == '__main__':
     seedStart = 123
     numNuMax = 1 #3 # 15
         
+    # if command line argument is given, use it to modify seedStart
+    if len(sys.argv) == 2:
+        seedStartModifier = int(sys.argv[1])
+    elif len(sys.argv) > 2:
+        print("Usage: python runLandauTestSimulations.py [seedStartModifier]")
+        exit()
+    else:
+        seedStartModifier = 0
+    seedStart += 12345*seedStartModifier
+
     mus = np.linspace(muMin,muMax,Nmus)
     if networkName == 'allToAll':
         weightMatrix = allToAllNetworkAdjacency(Ncomponents)
@@ -132,8 +143,8 @@ if __name__ == '__main__':
                               seedStart=seedStart)
 
     # save data
-    filename = 'LandauTestData_{}_Ncomponents{}_Nmus{}.dat'.format(
-                networkName,Ncomponents,Nmus)
+    filename = 'LandauTestData_{}_Ncomponents{}_Nmus{}_run{}.dat'.format(
+                networkName,Ncomponents,Nmus,seedStartModifier)
     save(dataDict,filename)
     print("runLandauTestSimulations: Saved data to {}".format(filename))
 
