@@ -102,7 +102,7 @@ def getGitHash(dir='./'):
 if __name__ == '__main__':
 
     # set up parameters of run
-    Ncomponents = 10 #91 #10 #50 #100 #10
+    Ncomponents = 91 #10 #50 #100 #10
     Nsamples = 100 #100
     tFinal = 100
     networkName = 'allToAll'
