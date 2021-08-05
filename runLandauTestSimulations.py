@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     # set up parameters of run
     Ncomponents = 91 #10 #50 #100 #10
-    Nsamples = 16 #100
+    Nsamples = 100 #16 #100
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
