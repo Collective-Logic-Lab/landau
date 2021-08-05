@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     # set up parameters of run
     Ncomponents = 91 #10 #50 #100 #10
-    Nsamples = 100 #100
+    Nsamples = 16 #100
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
@@ -144,8 +144,8 @@ if __name__ == '__main__':
                               seedStart=seedStart)
 
     # save data
-    filename = 'LandauTestData_{}_Ncomponents{}_Nmus{}_run{}.dat'.format(
-                networkName,Ncomponents,Nmus,runIndex)
+    filename = 'LandauTestData_{}_Ncomponents{}_Nsamples{}_Nmus{}_run{}.dat'.format(
+                networkName,Ncomponents,Nsamples,Nmus,runIndex)
     save(dataDict,filename)
     print("runLandauTestSimulations: Saved data to {}".format(filename))
 
