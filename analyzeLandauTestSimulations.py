@@ -9,8 +9,30 @@
 import pandas as pd
 import numpy as np
 from toolbox.simplePickle import load
+import glob
 
-def landauSimulationData(datafile):
+def landauSimulationData(datafilePrefix):
+
+    dataDict = {}
+    dfDict = {}
+    
+    # loop over all files with the given prefix
+    fileList = glob.glob("{}*".format(datafilePrefix))
+    if len(fileList) == 0:
+        raise Exception("No files found with prefix {}".format(datafilePrefix))
+    for file in fileList:
+        dataDictSingle,dfSingle = landauSimulationData_singleRun(file)
+        runIndex = dataDictSingle[list(dataDictSingle.keys())[0]]["runIndex"]
+        
+        dataDict[runIndex] = dataDictSingle
+        dfDict[runIndex] = dfSingle
+        
+    df = pd.concat(dfDict,names=["runIndex"])
+    df = df.sort_values(['mu','runIndex']).reset_index().drop(columns='level_1')
+    
+    return dataDict,df
+
+def landauSimulationData_singleRun(datafile):
     
     dataDict = load(datafile)
     
