@@ -80,3 +80,10 @@ def landauSimulationData_singleRun(datafile):
     df = pd.DataFrame.from_dict(dfData)
     
     return dataDict,df
+
+def runtime(df):
+    dftime = df[['runIndex',
+                 'simulation time (m)',
+                 'landau time (m)']].set_index('runIndex').sum(level='runIndex')
+    dftime['total (m)'] = dftime['simulation time (m)'] + dftime['landau time (m)']
+    return dftime
