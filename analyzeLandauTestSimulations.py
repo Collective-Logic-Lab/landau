@@ -38,13 +38,26 @@ def landauSimulationData_singleRun(datafile):
     
     muList = dataDict.keys()
     
+    minIndexList = []
+    minValList = []
     bistableIndexList = []
     bistableLikelihoodList = []
     bistableCList = []
     bistableDList = []
     bistableEigvalList = []
+    propAboveMeanList = []
     for mu in muList:
         if type(dataDict[mu]['llList']) != float:
+            # filter out any zero eigenvalues
+            nonzeroEigs = np.where(dataDict[mu]['valList'] != 0.)[0]
+            dataDict[mu]['valList'] = dataDict[mu]['valList'][nonzeroEigs]
+            dataDict[mu]['vecList'] = np.array(dataDict[mu]['vecList'])[nonzeroEigs]
+           
+            # find dimension with minimum eigenvalue (max variance)
+            minIndex = np.argmin(dataDict[mu]['valList'])
+            minIndexList.append(minIndex)
+            minValList.append(dataDict[mu]['valList'][minIndex])
+           
             # find dimension with most evidence for bistability
             bistableIndex = np.argmin(dataDict[mu]['llList'])
             
@@ -54,6 +67,12 @@ def landauSimulationData_singleRun(datafile):
             bistableCList.append(dataDict[mu]['cList'][bistableIndex])
             bistableDList.append(dataDict[mu]['dList'][bistableIndex])
             bistableEigvalList.append(dataDict[mu]['valList'][bistableIndex])
+            
+            # calculate proportion of samples above the mean in the bistable dimension
+            vec = dataDict[mu]['vecList'][bistableIndex]
+            x = np.dot(dataDict[mu]['finalStates']-dataDict[mu]['sampleMean'],vec)
+            propAboveMeanList.append( np.mean(x > 0) )
+            
         else: # there was an error in the Mathematica code
             bistableIndex = np.nan
             
@@ -69,6 +88,9 @@ def landauSimulationData_singleRun(datafile):
               'bistable c': bistableCList,
               'bistable d': bistableDList,
               'bistable eigenvalue': bistableEigvalList,
+              'prop. above mean in bistable dim.': propAboveMeanList,
+              'min eigenvalue index': minIndexList,
+              'min eigenvalue': minValList,
               'network name': [dataDict[mu]['networkName'] for mu in muList],
               'Ncomponents': [dataDict[mu]['Ncomponents'] for mu in muList],
               'Nsamples': [dataDict[mu]['Nsamples'] for mu in muList],
@@ -80,3 +102,10 @@ def landauSimulationData_singleRun(datafile):
     df = pd.DataFrame.from_dict(dfData)
     
     return dataDict,df
+
+def runtime(df):
+    dftime = df[['runIndex',
+                 'simulation time (m)',
+                 'landau time (m)']].set_index('runIndex').sum(level='runIndex')
+    dftime['total (m)'] = dftime['simulation time (m)'] + dftime['landau time (m)']
+    return dftime
