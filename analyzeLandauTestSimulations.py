@@ -45,6 +45,11 @@ def landauSimulationData_singleRun(datafile):
     bistableEigvalList = []
     for mu in muList:
         if type(dataDict[mu]['llList']) != float:
+            # filter out any zero eigenvalues
+            nonzeroEigs = np.where(dataDict[mu]['valList'] != 0.)[0]
+            dataDict[mu]['valList'] = dataDict[mu]['valList'][nonzeroEigs]
+            dataDict[mu]['vecList'] = np.array(dataDict[mu]['vecList'])[nonzeroEigs]
+           
             # find dimension with most evidence for bistability
             bistableIndex = np.argmin(dataDict[mu]['llList'])
             
