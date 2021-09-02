@@ -74,6 +74,8 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
             llList = llList.reshape([1])
             cList = cList.reshape([1])
             dList = dList.reshape([1])
+            valList = valList.reshape([1])
+            vecList = vecList.reshape([1,np.size(vecList)])
         
         dataDict[mu].update( {'mu': mu,
                         'originalWeightMatrix': originalWeightMatrix,
@@ -108,7 +110,7 @@ if __name__ == '__main__':
 
     # set up parameters of run
     Ncomponents = 91 #10 #50 #100 #10
-    Nsamples = 1000 #16 #100
+    Nsamples = 1 #1000 #16 #100
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
