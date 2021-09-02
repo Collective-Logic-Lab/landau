@@ -18,7 +18,8 @@ from toolbox.simplePickle import save
 
 
 def runMultipleMus(mus,originalWeightMatrix,baseDict={},
-    Nsamples=100,tFinal=100,seedStart=123,numNuMax=10,verbose=True):
+    Nsamples=100,tFinal=100,seedStart=123,numNuMax=10,runLandauAnalysis=True,
+    verbose=True):
     """
     Run sampling of final states for multiple interaction strengths mu
     that multiply values of the network specified by originalWeightMatrix.
@@ -58,11 +59,15 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
         finalStates = pd.DataFrame(finalStates)
         simTimeMinutes = (time.time() - startTime)/60.
         
-        # run Landau analysis on samples of final states
-        startTime = time.time()
-        sampleMean,valList,vecList,llList,cList,dList = \
-            landauAnalysis(finalStates,numNuMax=numNuMax)
-        landauTimeMinutes = (time.time() - startTime)/60.
+        if runLandauAnalysis:
+            # run Landau analysis on samples of final states
+            startTime = time.time()
+            sampleMean,valList,vecList,llList,cList,dList = \
+                landauAnalysis(finalStates,numNuMax=numNuMax)
+            landauTimeMinutes = (time.time() - startTime)/60.
+        else:
+            sampleMean,valList,vecList,llList,cList,dList = np.nan*np.empty(6)
+            landauTimeMinutes = np.nan
         
         # deal with case when the number of tested dimensions is 1
         if np.size(llList) == 1:
@@ -103,13 +108,14 @@ if __name__ == '__main__':
 
     # set up parameters of run
     Ncomponents = 91 #10 #50 #100 #10
-    Nsamples = 16 #100
+    Nsamples = 1000 #16 #100
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
-    Nmus = 11 #101
+    Nmus = 51 #11 #101
     seedStart = 123
     numNuMax = 1 #3 # 15
+    runLandauAnalysis = False # True
         
     # if command line argument is given, use it to modify seedStart
     if len(sys.argv) == 2:
@@ -119,7 +125,7 @@ if __name__ == '__main__':
         exit()
     else:
         runIndex = 0
-    seedStart += 12345*runIndex
+    seedStart += 1234567*runIndex
 
     mus = np.linspace(muMin,muMax,Nmus)
     if networkName == 'allToAll':
@@ -132,6 +138,7 @@ if __name__ == '__main__':
                 'gitHash': getGitHash(),
                 'numNuMax': numNuMax,
                 'runIndex': runIndex,
+                'runLandauAnalysis': runLandauAnalysis,
                }
 
     # run the simulations and analysis
@@ -141,7 +148,8 @@ if __name__ == '__main__':
                               Nsamples=Nsamples,
                               tFinal=tFinal,
                               numNuMax=numNuMax,
-                              seedStart=seedStart)
+                              seedStart=seedStart,
+                              runLandauAnalysis=runLandauAnalysis)
 
     # save data
     filename = 'LandauTestData_{}_Ncomponents{}_Nsamples{}_Nmus{}_run{}.dat'.format(
