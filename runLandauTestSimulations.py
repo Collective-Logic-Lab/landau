@@ -52,7 +52,8 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
             # run single simulation to tFinal and save final state
             timeSeriesData = simpleCollectiveDynamics(weightMatrix,
                                                       tFinal=tFinal,
-                                                      seed=seed)
+                                                      seed=seed,
+                                                      onlyReturnFinalState=True)
             finalState = timeSeriesData.loc[tFinal]
             finalStates.append(finalState)
 
@@ -110,7 +111,7 @@ if __name__ == '__main__':
 
     # set up parameters of run
     Ncomponents = 91 #10 #50 #100 #10
-    Nsamples = 1 #1000 #16 #100
+    Nsamples = 1000 #16 #100
     tFinal = 100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents

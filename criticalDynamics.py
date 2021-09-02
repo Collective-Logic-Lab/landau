@@ -13,7 +13,7 @@ import pandas as pd
 from numba import jit
 
 def simpleCollectiveDynamics(weightMatrix,inputConst=0,noiseVar=1,tFinal=10,
-    deltat=1e-3,initialState=None,seed=None):
+    deltat=1e-3,initialState=None,seed=None,onlyReturnFinalState=False):
     """
     Simulates the following stochastic process:
     
@@ -28,10 +28,15 @@ def simpleCollectiveDynamics(weightMatrix,inputConst=0,noiseVar=1,tFinal=10,
     initialState (None)               : If given a list of length N, start the system in the
                                         given state.  If None, initial state defaults to
                                         all zeros.
+    onlyReturnFinalState (False)      : If True, only the final state is returned
     """
 
     N = len(weightMatrix)
-    times = np.arange(0,tFinal+deltat,deltat)
+    
+    if onlyReturnFinalState:
+        times = [tFinal]
+    else:
+        times = np.arange(0,tFinal+deltat,deltat)
 
     # use numba function for speed
     stateList = simpleCollectiveDynamics_numba(weightMatrix,
@@ -40,7 +45,8 @@ def simpleCollectiveDynamics(weightMatrix,inputConst=0,noiseVar=1,tFinal=10,
                     tFinal=tFinal,
                     deltat=deltat,
                     initialState=initialState,
-                    seed=seed)
+                    seed=seed,
+                    onlyReturnFinalState=onlyReturnFinalState)
     
     # return simulation output as a pandas dataframe
     df = pd.DataFrame(stateList,
@@ -51,7 +57,7 @@ def simpleCollectiveDynamics(weightMatrix,inputConst=0,noiseVar=1,tFinal=10,
 
 @jit(nopython=True)
 def simpleCollectiveDynamics_numba(weightMatrix,inputConst=0,noiseVar=1,tFinal=10,
-    deltat=1e-3,initialState=None,seed=None):
+    deltat=1e-3,initialState=None,seed=None,onlyReturnFinalState=False):
     """
     Simulates the following stochastic process:
     
@@ -66,6 +72,7 @@ def simpleCollectiveDynamics_numba(weightMatrix,inputConst=0,noiseVar=1,tFinal=1
     initialState (None)               : If given a list of length N, start the system in the
                                         given state.  If None, initial state defaults to
                                         all zeros.
+    onlyReturnFinalState (False)      : If True, only the final state is returned
     """
     np.random.seed(seed)
     
@@ -81,14 +88,19 @@ def simpleCollectiveDynamics_numba(weightMatrix,inputConst=0,noiseVar=1,tFinal=1
     # make sure the initial state has the correct length
     assert(len(state0)==N)
     
-    # set up the simulation times and a list to hold the simulated steps
+    # set up the simulation times
     times = np.arange(0,tFinal+deltat,deltat)
-    stateList = np.empty((len(times),N))
-    stateList[0] = state0
+    # make a list to hold the simulated steps
+    if onlyReturnFinalState:
+        stateList = np.empty((1,N))
+    else:
+        stateList = np.empty((len(times),N))
+        stateList[0] = state0
+    newState = state0
     
     # run the simulation (we already have the state for t=0)
     for i,time in enumerate(times[1:]):
-        currentState = stateList[i]
+        currentState = newState.copy()
         
         # compute deltax for current timestep
         deterministicPart = deltat*( inputConst - currentState + np.dot(weightMatrix,np.tanh(currentState)) )
@@ -99,9 +111,13 @@ def simpleCollectiveDynamics_numba(weightMatrix,inputConst=0,noiseVar=1,tFinal=1
         # update to find the new state
         newState = currentState + deltax
         
-        # record the new state
-        stateList[i+1] = newState
+        if not onlyReturnFinalState:
+            # record the new state
+            stateList[i+1] = newState
        
+    if onlyReturnFinalState:
+        stateList[0] = newState
+        
     return stateList
 
 def allToAllNetworkAdjacency(N):
