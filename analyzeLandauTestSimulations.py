@@ -38,6 +38,8 @@ def landauSimulationData_singleRun(datafile):
     
     muList = dataDict.keys()
     
+    minIndexList = []
+    minValList = []
     bistableIndexList = []
     bistableLikelihoodList = []
     bistableCList = []
@@ -49,6 +51,11 @@ def landauSimulationData_singleRun(datafile):
             nonzeroEigs = np.where(dataDict[mu]['valList'] != 0.)[0]
             dataDict[mu]['valList'] = dataDict[mu]['valList'][nonzeroEigs]
             dataDict[mu]['vecList'] = np.array(dataDict[mu]['vecList'])[nonzeroEigs]
+           
+            # find dimension with minimum eigenvalue (max variance)
+            minIndex = np.argmin(dataDict[mu]['valList'])
+            minIndexList.append(minIndex)
+            minValList.append(dataDict[mu]['valList'][minIndex])
            
             # find dimension with most evidence for bistability
             bistableIndex = np.argmin(dataDict[mu]['llList'])
@@ -74,6 +81,8 @@ def landauSimulationData_singleRun(datafile):
               'bistable c': bistableCList,
               'bistable d': bistableDList,
               'bistable eigenvalue': bistableEigvalList,
+              'min eigenvalue index': minIndexList,
+              'min eigenvalue': minValList,
               'network name': [dataDict[mu]['networkName'] for mu in muList],
               'Ncomponents': [dataDict[mu]['Ncomponents'] for mu in muList],
               'Nsamples': [dataDict[mu]['Nsamples'] for mu in muList],
