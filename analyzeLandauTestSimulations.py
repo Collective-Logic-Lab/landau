@@ -45,6 +45,7 @@ def landauSimulationData_singleRun(datafile):
     bistableCList = []
     bistableDList = []
     bistableEigvalList = []
+    propAboveMeanList = []
     for mu in muList:
         if type(dataDict[mu]['llList']) != float:
             # filter out any zero eigenvalues
@@ -66,6 +67,12 @@ def landauSimulationData_singleRun(datafile):
             bistableCList.append(dataDict[mu]['cList'][bistableIndex])
             bistableDList.append(dataDict[mu]['dList'][bistableIndex])
             bistableEigvalList.append(dataDict[mu]['valList'][bistableIndex])
+            
+            # calculate proportion of samples above the mean in the bistable dimension
+            vec = dataDict[mu]['vecList'][bistableIndex]
+            x = np.dot(dataDict[mu]['finalStates']-dataDict[mu]['sampleMean'],vec)
+            propAboveMeanList.append( np.mean(x > 0) )
+            
         else: # there was an error in the Mathematica code
             bistableIndex = np.nan
             
@@ -81,6 +88,7 @@ def landauSimulationData_singleRun(datafile):
               'bistable c': bistableCList,
               'bistable d': bistableDList,
               'bistable eigenvalue': bistableEigvalList,
+              'prop. above mean in bistable dim.': propAboveMeanList,
               'min eigenvalue index': minIndexList,
               'min eigenvalue': minValList,
               'network name': [dataDict[mu]['networkName'] for mu in muList],
