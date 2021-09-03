@@ -97,6 +97,7 @@ def landauSimulationData_singleRun(datafile):
               'tFinal': [dataDict[mu]['tFinal'] for mu in muList],
               'simulation time (m)': [dataDict[mu]['simTimeMinutes'] for mu in muList],
               'landau time (m)':  [dataDict[mu]['landauTimeMinutes'] for mu in muList],
+              'initial seed': [dataDict[mu]['seedList'][0] for mu in muList],
               }
     
     df = pd.DataFrame.from_dict(dfData)
