@@ -47,7 +47,7 @@ def landauSimulationData_singleRun(datafile):
     bistableEigvalList = []
     propAboveMeanList = []
     for mu in muList:
-        if type(dataDict[mu]['llList']) != float:
+        if not np.isnan(dataDict[mu]['llList'][0]):
             # filter out any zero eigenvalues
             nonzeroEigs = np.where(dataDict[mu]['valList'] != 0.)[0]
             dataDict[mu]['valList'] = dataDict[mu]['valList'][nonzeroEigs]
@@ -74,13 +74,16 @@ def landauSimulationData_singleRun(datafile):
             propAboveMeanList.append( np.mean(x > 0) )
             
         else: # there was an error in the Mathematica code
-            bistableIndex = np.nan
+            minIndexList.append(np.nan)
+            minValList.append(np.nan)
             
-            bistableIndexList.append(bistableIndex)
+            bistableIndexList.append(np.nan)
             bistableLikelihoodList.append(np.nan)
             bistableCList.append(np.nan)
             bistableDList.append(np.nan)
             bistableEigvalList.append(np.nan)
+            
+            propAboveMeanList.append(np.nan)
         
     dfData = {'mu': muList,
               'bistable index': bistableIndexList,
