@@ -71,9 +71,15 @@ Nsamples=Length[dataFull],
 Ncomponents=Length[First[dataFull]]},
 With[{
 x=dataFull,
-Jvals=PadRight[SingularValueList[Jinit], Ncomponents],
-Jvecs=Eigenvectors[Jinit]},
-With[{maxNuIndex=Count[Jvals, val_ /; val != 0]},
+(*eigenvalues of J are put in increasing order, with any zeros at the \
+end*)
+Jvals=PadRight[Reverse[SingularValueList[Jinit]], Ncomponents],
+JvecsUnordered=Eigenvectors[Jinit]},
+With[{
+maxNuIndex=Count[Jvals, val_ /; val != 0],
+Jvecs = Join[
+  Reverse[JvecsUnordered[[;; Count[Jvals, val_ /; val != 0]]]],
+  JvecsUnordered[[Count[Jvals, val_ /; val != 0] + 1 ;;]]]},
 {muInit,Jvals,Jvecs,
 Table[
 (*Check there's nothing weird going on with imaginary numbers in vecs, at least for c=1,d=1*)
@@ -82,7 +88,7 @@ If[Re[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,
 Quiet[
 FindMinimum[{-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,c,d],{i,1,Nsamples}]+Sum[GaussianLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs],{i,1,Nsamples}],{d>dmin}},{{c,1},{d,1}}],
 {FindMinimum::nrnum,FindMinimum::eit}]],
-{nuIndex,Max[1,maxNuIndex-numNuMax+1],maxNuIndex}
+{nuIndex, 1, Min[maxNuIndex, numNuMax]}
 ]}
 ]
 ]

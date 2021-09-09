@@ -17,7 +17,7 @@
 (*  - log-likelihoods (#nonSingularDims) *)
 (*  - fit c values (#nonSingularDims) *)
 (*  - fit d values (#nonSingularDims) *)
-(* where #nonSingularDims = floor( #samples-1, #dimensions ) *)
+(* where #nonSingularDims = number of non-singular dimensions of data matrix *)
 
 
 << LandauTransitionAnalysis.m

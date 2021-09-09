@@ -27,8 +27,7 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
     Returns dataDict indexed by mu.
     
     Note that the lists valList, vecList, llList, cList, and dList
-    are reversed from their counterparts in Mathematica.  This makes
-    the smallest indices correspond to largest variance.
+    are ordered such that the smallest indices correspond to largest variance.
     """
 
     dataDict = {}
@@ -87,11 +86,11 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
                         'simTimeMinutes': simTimeMinutes,
                         'landauTimeMinutes': landauTimeMinutes,
                         'sampleMean': sampleMean,
-                        'valList': valList[::-1],
-                        'vecList': vecList[::-1],
-                        'llList': llList[::-1],
-                        'cList': cList[::-1],
-                        'dList': dList[::-1],
+                        'valList': valList,
+                        'vecList': vecList,
+                        'llList': llList,
+                        'cList': cList,
+                        'dList': dList,
                        } )
         
         if verbose:
