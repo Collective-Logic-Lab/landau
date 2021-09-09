@@ -71,9 +71,9 @@ Nsamples=Length[dataFull],
 Ncomponents=Length[First[dataFull]]},
 With[{
 x=dataFull,
-Jvals=Join[SingularValueList[Jinit],Table[0,Ncomponents-(Nsamples-1)]],
-Jvecs=Eigenvectors[Jinit],
-maxNuIndex=Min[Nsamples-1,Ncomponents]},
+Jvals=PadRight[SingularValueList[Jinit], Ncomponents],
+Jvecs=Eigenvectors[Jinit]},
+With[{maxNuIndex=Count[Jvals, val_ /; val != 0]},
 {muInit,Jvals,Jvecs,
 Table[
 (*Check there's nothing weird going on with imaginary numbers in vecs, at least for c=1,d=1*)
@@ -84,6 +84,7 @@ FindMinimum[{-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals
 {FindMinimum::nrnum,FindMinimum::eit}]],
 {nuIndex,Max[1,maxNuIndex-numNuMax+1],maxNuIndex}
 ]}
+]
 ]
 ]
 
