@@ -47,3 +47,31 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     os.remove(outfile)
                             
     return mu,valList,vecList,llList,cList,dList
+
+def principalComponents(data,max_ll_cov=True,reg_covar=1e-6):
+    """
+    Returns eigenvalues and eigenvectors given by principal components analysis.
+
+    Eigenvectors are returned transposed compared to the numpy convention
+    (so that the first eigenvector here is given by vecs[0]).
+    
+    Note that the eigenvalues returned here correspond to the inverse of
+    eigenvalues returned in the landau analysis.
+    
+    data                    : data should have shape (# samples)x(# dimensions)
+    max_ll_cov (True)       : If true, use the maximum likelihood estimate of the
+                              covariance matrix (dividing by n).  If false, use the
+                              unbiased estimator of the covariance matrix (dividing
+                              by n-1).
+    reg_covar (1e-6)        : Regularization added to the diagonal of the covariance
+                              matrix, as used in sklearn.mixture.GaussianMixture
+    """
+    # compute covariance matrix
+    c = np.cov(data.T,bias=max_ll_cov)
+    c += reg_covar*np.eye(len(c))
+    
+    vals,vecs = np.linalg.eig(c)
+    
+    return np.real_if_close(vals), [ np.real_if_close(v) for v in vecs.T ]
+    
+    
