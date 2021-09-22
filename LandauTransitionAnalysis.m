@@ -29,11 +29,11 @@ logNormalizationDiagonal[Jvals_,nuIndex_,c_,d_]:=((Length[Jvals]-1)/2)Log[2\[Pi]
 
 
 (* ::Input::Initialization:: *)
-(*(Assumes any zeros come at the end of Jvals for nuIndex to work)*)LandauTransitionDistributionLogPDFdiagonal[x_,mu_,Jvals_,Jvecs_,nuIndex_,c_,d_]:=
+(*(Assumes any zeros come at the end of Jvals for nuIndex to work)*)LandauTransitionDistributionLogPDFdiagonal[x_,mu_,Jvals_,Jvecs_,nuIndex_,c_,d_,nuMu_]:=
 With[{
 J=Transpose[Jvecs].DiagonalMatrix[Jvals].Jvecs,
 nu=Jvecs[[nuIndex]]},
-LandauTransitionDistributionRelativeLogPDF[x,mu,J,nu,c,d]-logNormalizationDiagonal[Select[Jvals,#>0&],nuIndex,c,d]
+LandauTransitionDistributionRelativeLogPDF[x, mu + nuMu nu, J,nu,c,d]-logNormalizationDiagonal[Select[Jvals,#>0&],nuIndex,c,d]
 ]
 
 
@@ -83,10 +83,10 @@ Jvecs = Join[
 {muInit,Jvals,Jvecs,
 Table[
 (*Check there's nothing weird going on with imaginary numbers in vecs, at least for c=1,d=1*)
-If[Re[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,1,1],{i,1,Nsamples}]]!=Abs[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,1,1],{i,1,Nsamples}]],somethingIsWrong,
+If[Re[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,1,1,0],{i,1,Nsamples}]]!=Abs[-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,1,1,0],{i,1,Nsamples}]],somethingIsWrong,
 (*Do the actual minimization*)
 Quiet[
-FindMinimum[{-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,c,d],{i,1,Nsamples}]+Sum[GaussianLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs],{i,1,Nsamples}],{d>dmin}},{{c,1},{d,1}}],
+FindMinimum[{-Sum[LandauTransitionDistributionLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs,nuIndex,c,d,nuMu],{i,1,Nsamples}]+Sum[GaussianLogPDFdiagonal[x[[i]],muInit,Jvals,Jvecs],{i,1,Nsamples}],{d>dmin}},{{c,1},{d,1},{nuMu,0}}],
 {FindMinimum::nrnum,FindMinimum::eit}]],
 {nuIndex, 1, Min[maxNuIndex, numNuMax]}
 ]}

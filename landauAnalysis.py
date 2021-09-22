@@ -17,7 +17,7 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     
     Input: Data matrix, shape (#samples)x(#dimensions)
     
-    Returns: mu,valList,vecList,llList,cList,dList
+    Returns: mu,valList,vecList,llList,cList,dList,nuMuList
     """
     data = np.array(data)
     if len(np.shape(data)) != 2:
@@ -36,17 +36,18 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     # read result
     outfile = "{}_LTAoutput.csv".format(tempName)
     try:
-        resultList = [ np.loadtxt(outfile,delimiter=',',skiprows=i,max_rows=1) for i in range(7) ]
+        resultList = [ np.loadtxt(outfile,delimiter=',',skiprows=i,max_rows=1) for i in range(8) ]
     except(ValueError):
         print("landauAnalysis: ERROR in Mathematica output.  Returning nans.")
-        return np.nan,np.nan,np.nan,np.nan,np.nan,np.nan
+        return np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan
     mu, valList = resultList[0], resultList[1]
     vecList = [ np.real_if_close(re + (0+1j)*im)
                 for re,im in zip(resultList[2].reshape(dim,dim),resultList[3].reshape(dim,dim)) ]
-    llList, cList, dList = resultList[4], resultList[5], resultList[6]
+    llList = resultList[4]
+    cList, dList, nuMuList = resultList[5], resultList[6], resultList[7]
     os.remove(outfile)
                             
-    return mu,valList,vecList,llList,cList,dList
+    return mu,valList,vecList,llList,cList,dList,nuMuList
 
 def principalComponents(data,max_ll_cov=True,reg_covar=1e-6):
     """

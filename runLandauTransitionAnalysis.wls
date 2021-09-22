@@ -53,7 +53,8 @@ resultOutput = { result[[1]],
 				 Im[Flatten[result[[3]]]],
 				 Map[First,result[[4]]],
 				 Map[c/.Last[#]&,result[[4]]],
-				 Map[d/.Last[#]&,result[[4]]]
+				 Map[d/.Last[#]&,result[[4]]],
+				 Map[nuMu/.Last[#]&,result[[4]]]
 				};
 
 
