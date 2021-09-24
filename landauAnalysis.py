@@ -10,6 +10,7 @@
 from subprocess import call
 import numpy as np
 import os
+from sklearn.mixture import GaussianMixture
 
 def landauAnalysis(data,numNuMax=10,codeDir='./'):
     """
@@ -94,4 +95,82 @@ def principalComponents(data,max_ll_cov=True,reg_covar=1e-6):
     
     return np.real_if_close(vals), [ np.real_if_close(v) for v in vecs.T ]
     
+def LandauTransitionDistributionRelativeLogPDF(x, mu, Jvals, Jvecs, nu, c, d):
+    """
+    x should have length (#dimensions)
+    
+    (Note: mu here is the mean, not the interaction strength)
+    """
+    assert(len(nu) == len(Jvecs[0]))
+    assert(len(Jvals) == len(Jvecs))
+    assert(len(np.shape(x))==1)
+    assert(len(x) == len(nu))
+    
+    Jvecs = np.array(Jvecs)
+    
+    # J has shape (#dimensions)x(#dimensions)
+    #J = Transpose[Jvecs].DiagonalMatrix[Jvals].Jvecs,
+    J = np.dot(np.dot(Jvecs.T,np.diag(Jvals)),Jvecs)
+    
+    nuJnu = np.dot(np.dot(nu,J),nu)
+    term1 = -(1./2.)* np.dot(np.dot(x - mu,J),x - mu)
+    term2 = - ((c - 1.)/2.) * nuJnu * np.dot(x - mu,nu)**2
+    term3 = - (d/4.) * nuJnu**2 * np.dot(x - mu,nu)**4
+    
+    return term1 + term2 + term3
+    
+def gaussianMixtureAnalysis(data,ndims=None,cov_type='tied',nclusters=2,**kwargs):
+    """
+    Compares a gaussian mixture model with nclusters clusters (default 2) to
+    a simple single gaussian.
+    
+    Returns difference in log-likelihoods and sklearn fit GaussianMixture object
+    corresponding to the multiple clusters model.
+    
+    See sklearn.mixture.GaussianMixture for other kwargs, including n_init
+    (these kwargs are passed to both the single and multiple cluster models).
+    
+    data                        : data should have shape (# samples)x(# dimensions)
+    ndims (None)                : Number of highest-variance dimensions to include
+                                  in the analysis.  The default (None) corresponds
+                                  to keeping all dimensions.
+    cov_type ('tied')           : Can be {'full', 'tied', 'diag', 'spherical'}.
+                                  See sklearn.mixture.GaussianMixture.
+    """
+    
+    # optionally reduce dimensionality
+    if ndims:
+        mu = np.mean(data,axis=0)
+        vals,vecs = principalComponents(data)
+        transformedData = np.dot(data-mu,np.transpose(vecs))[:,:ndims]
+        transformedData = np.real_if_close(transformedData)
+    else:
+        transformedData = data
+    
+    # perform fits
+    gMultiple = GaussianMixture(n_components=nclusters,
+                                covariance_type=cov_type,
+                                **kwargs).fit(transformedData)
+    gSingle = GaussianMixture(n_components=1,
+                              covariance_type=cov_type,
+                              **kwargs).fit(transformedData)
+               
+    # calculate difference in log-likelihoods
+    # (this is analogous to what the mathematica landau code produces)
+    llMultiple = gMultiple.score(transformedData) * len(transformedData)
+    llSingle = gSingle.score(transformedData) * len(transformedData)
+    llDiff = llSingle - llMultiple
+    
+    # use bic instead...
+    # (lower bic = better, so negative bicDiff indicates evidence pointing toward
+    #  multiple gaussian model)
+    bicSingle = gSingle.bic(transformedData)
+    bicMultiple = gMultiple.bic(transformedData)
+    bicDiff = bicMultiple - bicSingle
+    
+    return {'llDiff': llDiff,
+            'bicDiff': bicDiff,
+            'gSingle': gSingle,
+            'gMultiple': gMultiple,
+            }
     

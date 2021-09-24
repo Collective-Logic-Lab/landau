@@ -9,7 +9,7 @@
 #
 
 from criticalDynamics import simpleCollectiveDynamics,allToAllNetworkAdjacency
-from landauAnalysis import landauAnalysis
+from landauAnalysis import landauAnalysis,gaussianMixtureAnalysis
 import time
 import sys
 import numpy as np
@@ -56,7 +56,7 @@ def loadSimulationData():
     Returns dictionary keyed by mu
     """
 
-def runFitting(dataType='bee',numNuMax=10,
+def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
     runLandauAnalysis=True,runGaussianMixtureAnalysis=True,
     verbose=True):
     """
@@ -81,39 +81,29 @@ def runFitting(dataType='bee',numNuMax=10,
             # run Landau analysis on final states
             startTime = time.time()
             landauOutput = landauAnalysis(finalStates,numNuMax=numNuMax)
-            sampleMean = landauOutput['mu']
-            valList = landauOutput['valList']
-            vecList = landauOutput['vecList']
-            llList = landauOutput['llList']
-            cList = landauOutput['cList']
-            dList = landauOutput['dList']
-            nuMuList = landauOutput['nuMuList']
-            bicDiffList = landauOutput['bicDiffList']
+            sampleMean = landauOutput.pop('mu')
             landauTimeMinutes = (time.time() - startTime)/60.
         
-            dataDict.update(
+            landauOutput.update(
                        {'landauTimeMinutes': landauTimeMinutes,
                         'numNuMax': numNuMax,
                         'sampleMean': sampleMean,
-                        'valList': valList,
-                        'vecList': vecList,
-                        'llList': llList,
-                        'cList': cList,
-                        'dList': dList,
-                        'nuMuList': nuMuList,
-                        'bicDiffList': bicDiffList,
                        } )
+            dataDict['landauAnalysis'] = landauOutput
                        
         if runGaussianMixtureAnalysis:
             # run Gaussian Mixture analysis on final states
-            startTime = time.time()
+            for ndims in ndimsGaussianList:
+                startTime = time.time()
+                gaussianOutput = gaussianMixtureAnalysis(finalStates,ndims=ndims)
+                gaussianTimeMinutes = (time.time() - startTime)/60.
+                
+                gaussianOutput.update(
+                            {'gaussianTimeMinutes': gaussianTimeMinutes,
+                             'ndims': ndims,
+                            } )
+                dataDict['gaussianMixtureAnalysis{}'.format(ndims)] = gaussianOutput
             
-            gaussianTimeMinutes = (time.time() - startTime)/60.
-            
-            dataDict.update(
-                        {'gaussianTimeMinutes': gaussianTimeMinutes,
-                        } )
-        
         if verbose:
             print("runFitting: Done with fitting {} {}".format(dataVariable,key))
                        
@@ -133,6 +123,8 @@ if __name__ == '__main__':
     runLandauAnalysis = True
     runGaussianMixtureAnalysis = True
     dataType = 'bee' # 'simulation'
+    numNuMax = 1
+    ndimsGaussianList = [None,1]
     
     baseDict = {'dataType': dataType,
                 'gitHash': getGitHash(),
@@ -143,6 +135,8 @@ if __name__ == '__main__':
 
     # run the analysis
     dataDictDict = runFitting(dataType,
+                          numNuMax=numNuMax,
+                          ndimsGaussianList=ndimsGaussianList,
                           runLandauAnalysis=runLandauAnalysis,
                           runGaussianMixtureAnalysis=runGaussianMixtureAnalysis)
     
