@@ -46,6 +46,13 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     llList = resultList[4]
     cList, dList, nuMuList = resultList[5], resultList[6], resultList[7]
     os.remove(outfile)
+    
+    # reshape list arrays to get consistent results when they have length 1
+    valList = valList.reshape(valList.size)
+    llList = llList.reshape(llList.size)
+    cList = cList.reshape(cList.size)
+    dList = dList.reshape(dList.size)
+    nuMuList = nuMuList.reshape(nuMuList.size)
                             
     return mu,valList,vecList,llList,cList,dList,nuMuList
 
