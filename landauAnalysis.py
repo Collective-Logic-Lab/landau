@@ -17,7 +17,7 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     
     Input: Data matrix, shape (#samples)x(#dimensions)
     
-    Returns: mu,valList,vecList,llList,cList,dList,nuMuList
+    Returns: dictionary with mu,valList,vecList,llList,cList,dList,nuMuList,bicDiffList
     """
     data = np.array(data)
     if len(np.shape(data)) != 2:
@@ -54,7 +54,19 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     dList = dList.reshape(dList.size)
     nuMuList = nuMuList.reshape(nuMuList.size)
                             
-    return mu,valList,vecList,llList,cList,dList,nuMuList
+    # also return bic differences
+    numExtraParameters = 1
+    bicDiffList = 2.*llList + numExtraParameters*np.log(len(data))
+                            
+    return {'mu': mu,
+            'valList': valList,
+            'vecList': vecList,
+            'llList': llList,
+            'cList': cList,
+            'dList': dList,
+            'nuMuList': nuMuList,
+            'bicDiffList': bicDiffList,
+            }
 
 def principalComponents(data,max_ll_cov=True,reg_covar=1e-6):
     """
