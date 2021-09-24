@@ -18,8 +18,7 @@ from toolbox.simplePickle import save
 
 
 def runMultipleMus(mus,originalWeightMatrix,baseDict={},
-    Nsamples=100,tFinal=100,seedStart=123,numNuMax=10,runLandauAnalysis=True,
-    verbose=True):
+    Nsamples=100,tFinal=100,seedStart=123,verbose=True):
     """
     Run sampling of final states for multiple interaction strengths mu
     that multiply values of the network specified by originalWeightMatrix.
@@ -59,24 +58,6 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
         finalStates = pd.DataFrame(finalStates)
         simTimeMinutes = (time.time() - startTime)/60.
         
-        if runLandauAnalysis:
-            # run Landau analysis on samples of final states
-            startTime = time.time()
-            landouOutput = landauAnalysis(finalStates,numNuMax=numNuMax)
-            sampleMean = landauOutput['mu']
-            valList = landauOutput['valList']
-            vecList = landauOutput['vecList']
-            llList = landauOutput['llList']
-            cList = landauOutput['cList']
-            dList = landauOutput['dList']
-            nuMuList = landauOutput['nuMuList']
-            bicDiffList = landauOutput['bicDiffList']
-            landauTimeMinutes = (time.time() - startTime)/60.
-        else:
-            sampleMean,valList,vecList,llList,cList,dList = np.nan*np.empty(6)
-            nuMuList,bicDiffList = np.nan,np.nan
-            landauTimeMinutes = np.nan
-        
         dataDict[mu].update( {'mu': mu,
                         'originalWeightMatrix': originalWeightMatrix,
                         'Nsamples': Nsamples,
@@ -84,15 +65,6 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
                         'seedList': seedList,
                         'finalStates': finalStates,
                         'simTimeMinutes': simTimeMinutes,
-                        'landauTimeMinutes': landauTimeMinutes,
-                        'sampleMean': sampleMean,
-                        'valList': valList,
-                        'vecList': vecList,
-                        'llList': llList,
-                        'cList': cList,
-                        'dList': dList,
-                        'nuMuList': nuMuList,
-                        'bicDiffList': bicDiffList,
                        } )
         
         if verbose:
@@ -118,8 +90,6 @@ if __name__ == '__main__':
     muMin,muMax = 0./Ncomponents,2./Ncomponents
     Nmus = 51 #11 #101
     seedStart = 123
-    numNuMax = 1 #3 # 15
-    runLandauAnalysis = False # True
         
     # if command line argument is given, use it to modify seedStart
     if len(sys.argv) == 2:
@@ -140,20 +110,17 @@ if __name__ == '__main__':
     baseDict = {'networkName': networkName,
                 'Ncomponents': Ncomponents,
                 'gitHash': getGitHash(),
-                'numNuMax': numNuMax,
                 'runIndex': runIndex,
                 'runLandauAnalysis': runLandauAnalysis,
                }
 
-    # run the simulations and analysis
+    # run the simulations
     dataDict = runMultipleMus(mus,
                               weightMatrix,
                               baseDict=baseDict,
                               Nsamples=Nsamples,
                               tFinal=tFinal,
-                              numNuMax=numNuMax,
-                              seedStart=seedStart,
-                              runLandauAnalysis=runLandauAnalysis)
+                              seedStart=seedStart)
 
     # save data
     filename = 'LandauTestData_{}_Ncomponents{}_Nsamples{}_Nmus{}_run{}.dat'.format(
