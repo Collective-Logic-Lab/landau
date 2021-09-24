@@ -42,8 +42,10 @@ def landauSimulationData_singleRun(datafile):
     minValList = []
     bistableIndexList = []
     bistableLikelihoodList = []
+    bistableBICList = []
     bistableCList = []
     bistableDList = []
+    bistableNuMuList = []
     bistableEigvalList = []
     propAboveMeanList = []
     for mu in muList:
@@ -64,8 +66,10 @@ def landauSimulationData_singleRun(datafile):
             # extract bistability parameters for max bistability dimension
             bistableIndexList.append(bistableIndex)
             bistableLikelihoodList.append(dataDict[mu]['llList'][bistableIndex])
+            bistableBICList.append(dataDict[mu]['bicDiffList'][bistableIndex])
             bistableCList.append(dataDict[mu]['cList'][bistableIndex])
             bistableDList.append(dataDict[mu]['dList'][bistableIndex])
+            bistableNuMuList.append(dataDict[mu]['nuMuList'][bistableIndex])
             bistableEigvalList.append(dataDict[mu]['valList'][bistableIndex])
             
             # calculate proportion of samples above the mean in the bistable dimension
@@ -79,8 +83,10 @@ def landauSimulationData_singleRun(datafile):
             
             bistableIndexList.append(np.nan)
             bistableLikelihoodList.append(np.nan)
+            bistableBICList.append(np.nan)
             bistableCList.append(np.nan)
             bistableDList.append(np.nan)
+            bistableNuMuList.append(np.nan)
             bistableEigvalList.append(np.nan)
             
             propAboveMeanList.append(np.nan)
@@ -90,6 +96,7 @@ def landauSimulationData_singleRun(datafile):
               'bistable log-likelihood': bistableLikelihoodList,
               'bistable c': bistableCList,
               'bistable d': bistableDList,
+              'bistable nuMu': bistableNuMuList,
               'bistable eigenvalue': bistableEigvalList,
               'prop. above mean in bistable dim.': propAboveMeanList,
               'min eigenvalue index': minIndexList,
