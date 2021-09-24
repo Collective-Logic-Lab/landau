@@ -62,20 +62,20 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
         if runLandauAnalysis:
             # run Landau analysis on samples of final states
             startTime = time.time()
-            sampleMean,valList,vecList,llList,cList,dList = \
-                landauAnalysis(finalStates,numNuMax=numNuMax)
+            landouOutput = landauAnalysis(finalStates,numNuMax=numNuMax)
+            sampleMean = landauOutput['mu']
+            valList = landauOutput['valList']
+            vecList = landauOutput['vecList']
+            llList = landauOutput['llList']
+            cList = landauOutput['cList']
+            dList = landauOutput['dList']
+            nuMuList = landauOutput['nuMuList']
+            bicDiffList = landauOutput['bicDiffList']
             landauTimeMinutes = (time.time() - startTime)/60.
         else:
             sampleMean,valList,vecList,llList,cList,dList = np.nan*np.empty(6)
+            nuMuList,bicDiffList = np.nan,np.nan
             landauTimeMinutes = np.nan
-        
-        # deal with case when the number of tested dimensions is 1
-        if np.size(llList) == 1:
-            llList = llList.reshape([1])
-            cList = cList.reshape([1])
-            dList = dList.reshape([1])
-            valList = valList.reshape([1])
-            vecList = vecList.reshape([1,np.size(vecList)])
         
         dataDict[mu].update( {'mu': mu,
                         'originalWeightMatrix': originalWeightMatrix,
@@ -91,6 +91,8 @@ def runMultipleMus(mus,originalWeightMatrix,baseDict={},
                         'llList': llList,
                         'cList': cList,
                         'dList': dList,
+                        'nuMuList': nuMuList,
+                        'bicDiffList': bicDiffList,
                        } )
         
         if verbose:
