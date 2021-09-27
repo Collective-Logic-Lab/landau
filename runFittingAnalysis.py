@@ -15,7 +15,7 @@ import sys
 import numpy as np
 import pandas as pd
 import subprocess # for getGitHash
-from toolbox.simplePickle import save
+from toolbox.simplePickle import load,save
 
 def loadBeeData(log=True,skipDays=[4,]):
     """
@@ -51,12 +51,35 @@ def loadBeeDataDict(log=True):
                             }
     return dataDictDict
 
-def loadSimulationData():
+def loadSimulationData(datafile,numSamples,samplesOffset):
     """
+    Loads existing simulation data created using runLandauTestSimulations.py
+    
     Returns dictionary keyed by mu
     """
+    # load data from file created using runLandauTestSimulations.py
+    samplesDataDict = load(datafile)
+    
+    for mu,data in samplesDataDict.items():
+        # remove any existing fitting analysis to avoid confusion
+        analysisKeys = ['runLandauAnalysis','landauTimeMinutes','numNuMax',
+                        'sampleMean','valList','vecList','llList','cList','dList',
+                        'simTimeMinutes']
+        for k in analysisKeys:
+            data.pop(k,None)
+        # save simulation gitHash with new name to avoid confusion
+        simulationGitHash = data.pop('gitHash',None)
+        data['simulationGitHash'] = simulationGitHash
+        
+        # take desired slice of data
+        assert(len(data['finalStates']) >= samplesOffset+numSamples) # enough data?
+        data['finalStates'] = data['finalStates'][samplesOffset:samplesOffset+numSamples]
+        data['Nsamples'] = numSamples
+        
+    return samplesDataDict
 
 def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
+    datafile=None,numSamples=None,samplesOffset=None,outputfilename=None,
     runLandauAnalysis=True,runGaussianMixtureAnalysis=True,
     verbose=True):
     """
@@ -69,7 +92,7 @@ def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
         dataDictDict = loadBeeDataDict()
     elif dataType == 'simulation':
         dataVariable = 'mu'
-        dataDictDict = XXX
+        dataDictDict = loadSimulationData(datafile,numSamples,samplesOffset)
     else:
         raise(Exception,'Unrecognized dataType')
         
@@ -88,6 +111,7 @@ def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
                        {'landauTimeMinutes': landauTimeMinutes,
                         'numNuMax': numNuMax,
                         'sampleMean': sampleMean,
+                        'gitHash': getGitHash(),
                        } )
             dataDict['landauAnalysis'] = landauOutput
                        
@@ -101,11 +125,18 @@ def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
                 gaussianOutput.update(
                             {'gaussianTimeMinutes': gaussianTimeMinutes,
                              'ndims': ndims,
+                             'gitHash': getGitHash(),
                             } )
                 dataDict['gaussianMixtureAnalysis{}'.format(ndims)] = gaussianOutput
             
         if verbose:
-            print("runFitting: Done with fitting {} {}".format(dataVariable,key))
+            print("runFitting: Done with fitting {} = {}".format(dataVariable,key))
+            
+        if outputfilename:
+            # save data
+            save(dataDictDict,outputfilename)
+            if verbose:
+                print("runFitting: Saved fitting data to {}".format(outputfilename))
                        
     return dataDictDict
         
@@ -122,27 +153,52 @@ if __name__ == '__main__':
     # set up parameters of run
     runLandauAnalysis = True
     runGaussianMixtureAnalysis = True
-    dataType = 'bee' # 'simulation'
+    dataType = 'simulation' # bee'
     numNuMax = 1
     ndimsGaussianList = [None,1]
+    # parameters for use in sampling from simulation data
+    networkName = 'allToAll'
+    Ncomponents = 91
+    Nsamples = 16 # number of samples to fit to
+    NsamplesOriginal = 1000 # number of samples in original simulation datafiles
+    samplesOffset = 0 # index of first sample used for fitting
+    Nmus = 51
     
-    baseDict = {'dataType': dataType,
-                'gitHash': getGitHash(),
-                'runIndex': runIndex,
-                'runLandauAnalysis': runLandauAnalysis,
-                'runGaussianMixtureAnalysis': runGaussianMixtureAnalysis,
-               }
+    # if command line argument is given, use it to set runIndex
+    if len(sys.argv) == 2:
+        runIndex = int(sys.argv[1])
+    elif len(sys.argv) > 2:
+        print("Usage: python runFittingAnalysis.py [runIndex]")
+        exit()
+    else:
+        runIndex = 0
+    
+    # set up output data dictionary and filenames
+    if dataType == 'bee':
+        filename = 'FittingData_{}.dat'.format(dataType)
+        samplesKwargs = {} # (only used for simulation data samples)
+    elif dataType == 'simulation':
+        filename = 'FittingData_{}_Ncomponents{}_Nsamples{}_offset{}_Nmus{}_run{}.dat'.format(
+                networkName,Ncomponents,Nsamples,samplesOffset,Nmus,runIndex)
+        datafile = 'LandauTestData_{}_Ncomponents{}_Nsamples{}_Nmus{}_run{}.dat'.format(
+                networkName,Ncomponents,NsamplesOriginal,Nmus,runIndex)
+        samplesKwargs = {'datafile': datafile,
+                         'numSamples': Nsamples,
+                         'samplesOffset': samplesOffset,
+                        }
+    else:
+        raise(Exception,"Unrecognized dataType")
 
     # run the analysis
     dataDictDict = runFitting(dataType,
                           numNuMax=numNuMax,
                           ndimsGaussianList=ndimsGaussianList,
                           runLandauAnalysis=runLandauAnalysis,
-                          runGaussianMixtureAnalysis=runGaussianMixtureAnalysis)
+                          runGaussianMixtureAnalysis=runGaussianMixtureAnalysis,
+                          outputfilename=filename,
+                          **samplesKwargs)
     
     # save data
-    filename = 'FittingData_{}_run{}.dat'.format(
-                dataType,runIndex)
     save(dataDictDict,filename)
     print("runFittingAnalysis: Saved data to {}".format(filename))
 
