@@ -1,8 +1,9 @@
 #!/bin/bash
 
-## runLandauTestSimulations.sh
+## runFittingAnalysis.sh
 ##
 ## Bryan Daniels
+## 2021/9/27 branched from runLandauTestSimulations.sh
 ## 2021/8/4 branched from run_control_kernels.sh
 ## 2.19.2019 branched from RunScan_BCD.sh
 ## 10.10.2018 branched from runWormFitting.sh
@@ -14,7 +15,7 @@
 ##
 
 ## 2.19.2019 Run this script using slurm arrays. E.g. for 50 instantiations,
-##     sbatch --array=0-49 runLandauTestSimulations.sh 
+##     sbatch --array=0-49 runFittingAnalysis.sh 
 
 #SBATCH -n 1 #40 #20       # number of cores
 #SBATCH -t 2-00:00 # wall time (D-HH:MM)
@@ -78,6 +79,6 @@ cd ~/landau/
 #
 #conda activate python3
 
-python ~/landau/runLandauTestSimulations.py $SLURM_ARRAY_TASK_ID
+python ~/landau/runFittingAnalysis.py $SLURM_ARRAY_TASK_ID
 
 
