@@ -23,8 +23,8 @@ def trimFittingData(datafilePrefix):
         d = load(file)
         for dd in d:
             for gname in ['GaussianMixtureAnalysis1','GaussianMixtureAnalysisNone']:
-            dd[gname].pop('gSingle')
-            dd[gname].pop('gMultiple')
+                dd[gname].pop('gSingle')
+                dd[gname].pop('gMultiple')
         print("trimFittingData: Saved data to {}".format(newfilename))
         save(d,newfilename)
 
