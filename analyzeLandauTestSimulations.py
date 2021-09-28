@@ -21,10 +21,10 @@ def trimFittingData(datafilePrefix):
         raise Exception("No files found with prefix {}".format(datafilePrefix))
     for file in fileList:
         d = load(file)
-        for dd in d:
+        for mu in d.keys():
             for gname in ['GaussianMixtureAnalysis1','GaussianMixtureAnalysisNone']:
-                dd[gname].pop('gSingle')
-                dd[gname].pop('gMultiple')
+                d[mu][gname].pop('gSingle')
+                d[mu][gname].pop('gMultiple')
         print("trimFittingData: Saved data to {}".format(newfilename))
         save(d,newfilename)
 
