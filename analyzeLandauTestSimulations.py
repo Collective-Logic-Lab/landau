@@ -26,6 +26,7 @@ def trimFittingData(datafilePrefix):
                 if gname in d[mu]:
                     d[mu][gname].pop('gSingle')
                     d[mu][gname].pop('gMultiple')
+        newfilename = file[:-4]+'_trimmed.dat'
         print("trimFittingData: Saved data to {}".format(newfilename))
         save(d,newfilename)
 
