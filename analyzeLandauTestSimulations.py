@@ -68,6 +68,12 @@ def fittingData_singleRun(datafile):
     bistableEigvalList = []
     propAboveMeanList = []
     landauTimeList = []
+    gaussianLLListNone = []
+    gaussianBICListNone = []
+    gaussianTimeMinutesListNone = []
+    gaussianLLList1 = []
+    gaussianBICList1 = []
+    gaussianTimeMinutesList1 = []
     for mu in muList:
         if ('landauAnalysis' in dataDict[mu]) \
             and not np.isnan(dataDict[mu]['landauAnalysis']['llList'][0]):
@@ -118,12 +124,34 @@ def fittingData_singleRun(datafile):
             
             landauTimeList.append(np.nan)
         
-        #if 'gaussianMixtureAnalysisNone' in dataDict[mu]:
+        if 'gaussianMixtureAnalysisNone' in dataDict[mu]:
+            gNone = dataDict[mu]['gaussianMixtureAnalysisNone']
+            gaussianLLListNone.append(gNone['llDiff'])
+            gaussianBICListNone.append(gNone['bicDiff'])
+            gaussianTimeMinutesListNone.append(gNone['gaussianTimeMinutes'])
+        else:
+            gaussianLLListNone.append(np.nan)
+            gaussianBICListNone.append(np.nan)
+            gaussianTimeMinutesListNone.append(np.nan)
             
+        if 'gaussianMixtureAnalysis1' in dataDict[mu]:
+            g1 = dataDict[mu]['gaussianMixtureAnalysis1']
+            gaussianLLList1.append(g1['llDiff'])
+            gaussianBICList1.append(g1['bicDiff'])
+            gaussianTimeMinutesList1.append(g1['gaussianTimeMinutes'])
+        else:
+            gaussianLLList1.append(np.nan)
+            gaussianBICList1.append(np.nan)
+            gaussianTimeMinutesList1.append(np.nan)
         
     dfData = {'mu': muList,
               'bistable index': bistableIndexList,
               'bistable log-likelihood': bistableLikelihoodList,
+              'bistable bic diff': bistableBICList,
+              'gaussian unconstrained log-likelihood': gaussianLLListNone,
+              'gaussian unconstrained bic diff': gaussianBICListNone,
+              'gaussian PC log-likelihood': gaussianLLList1,
+              'gaussian PC bic diff': gaussianBICList1,
               'bistable c': bistableCList,
               'bistable d': bistableDList,
               'bistable nuMu': bistableNuMuList,
@@ -136,6 +164,8 @@ def fittingData_singleRun(datafile):
               'Nsamples': [dataDict[mu]['Nsamples'] for mu in muList],
               'tFinal': [dataDict[mu]['tFinal'] for mu in muList],
               'landau time (m)':  landauTimeList,
+              'gaussian unconstrained time (m)': gaussianTimeMinutesListNone,
+              'gaussian PC time (m)': gaussianTimeMinutesList1,
               'initial seed': [dataDict[mu]['seedList'][0] for mu in muList],
               }
     
