@@ -22,9 +22,10 @@ def trimFittingData(datafilePrefix):
     for file in fileList:
         d = load(file)
         for mu in d.keys():
-            for gname in ['GaussianMixtureAnalysis1','GaussianMixtureAnalysisNone']:
-                d[mu][gname].pop('gSingle')
-                d[mu][gname].pop('gMultiple')
+            for gname in ['gaussianMixtureAnalysis1','gaussianMixtureAnalysisNone']:
+                if gname in d[mu]:
+                    d[mu][gname].pop('gSingle')
+                    d[mu][gname].pop('gMultiple')
         print("trimFittingData: Saved data to {}".format(newfilename))
         save(d,newfilename)
 
