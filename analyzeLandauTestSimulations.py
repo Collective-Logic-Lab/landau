@@ -67,6 +67,7 @@ def fittingData_singleRun(datafile):
     bistableNuMuList = []
     bistableEigvalList = []
     propAboveMeanList = []
+    landauTimeList = []
     for mu in muList:
         if ('landauAnalysis' in dataDict[mu]) \
             and not np.isnan(dataDict[mu]['landauAnalysis']['llList'][0]):
@@ -96,8 +97,10 @@ def fittingData_singleRun(datafile):
             
             # calculate proportion of samples above the mean in the bistable dimension
             vec = landauData['vecList'][bistableIndex]
-            x = np.dot(landauData['finalStates']-landauData['sampleMean'],vec)
+            x = np.dot(dataDict[mu]['finalStates']-landauData['sampleMean'],vec)
             propAboveMeanList.append( np.mean(x > 0) )
+            
+            landauTimeList.append(landauData['landauTimeMinutes'])
             
         else: # no landau analysis, or an error in the Mathematica code
             minIndexList.append(np.nan)
@@ -112,6 +115,8 @@ def fittingData_singleRun(datafile):
             bistableEigvalList.append(np.nan)
             
             propAboveMeanList.append(np.nan)
+            
+            landauTimeList.append(np.nan)
         
         #if 'gaussianMixtureAnalysisNone' in dataDict[mu]:
             
@@ -130,8 +135,7 @@ def fittingData_singleRun(datafile):
               'Ncomponents': [dataDict[mu]['Ncomponents'] for mu in muList],
               'Nsamples': [dataDict[mu]['Nsamples'] for mu in muList],
               'tFinal': [dataDict[mu]['tFinal'] for mu in muList],
-              'simulation time (m)': [dataDict[mu]['simTimeMinutes'] for mu in muList],
-              'landau time (m)':  [dataDict[mu]['landauTimeMinutes'] for mu in muList],
+              'landau time (m)':  landauTimeList,
               'initial seed': [dataDict[mu]['seedList'][0] for mu in muList],
               }
     
