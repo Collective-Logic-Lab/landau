@@ -8,10 +8,27 @@
 
 import pandas as pd
 import numpy as np
-from toolbox.simplePickle import load
+from toolbox.simplePickle import load,save
 import glob
 
-def landauSimulationData(datafilePrefix):
+def trimFittingData(datafilePrefix):
+    """
+    Remove gaussian mixture fitting objects to reduce file size
+    """
+    # loop over all files with the given prefix
+    fileList = glob.glob("{}*".format(datafilePrefix))
+    if len(fileList) == 0:
+        raise Exception("No files found with prefix {}".format(datafilePrefix))
+    for file in fileList:
+        d = load(file)
+        for dd in d:
+            for gname in ['GaussianMixtureAnalysis1','GaussianMixtureAnalysisNone']:
+            dd[gname].pop('gSingle')
+            dd[gname].pop('gMultiple')
+        print("trimFittingData: Saved data to {}".format(newfilename))
+        save(d,newfilename)
+
+def fittingData(datafilePrefix):
 
     dataDict = {}
     dfDict = {}
@@ -21,7 +38,7 @@ def landauSimulationData(datafilePrefix):
     if len(fileList) == 0:
         raise Exception("No files found with prefix {}".format(datafilePrefix))
     for file in fileList:
-        dataDictSingle,dfSingle = landauSimulationData_singleRun(file)
+        dataDictSingle,dfSingle = fittingData_singleRun(file)
         runIndex = dataDictSingle[list(dataDictSingle.keys())[0]]["runIndex"]
         
         dataDict[runIndex] = dataDictSingle
@@ -32,7 +49,7 @@ def landauSimulationData(datafilePrefix):
     
     return dataDict,df
 
-def landauSimulationData_singleRun(datafile):
+def fittingData_singleRun(datafile):
     
     dataDict = load(datafile)
     
@@ -49,35 +66,38 @@ def landauSimulationData_singleRun(datafile):
     bistableEigvalList = []
     propAboveMeanList = []
     for mu in muList:
-        if not np.isnan(dataDict[mu]['llList'][0]):
+        if ('landauAnalysis' in dataDict[mu]) \
+            and not np.isnan(dataDict[mu]['landauAnalysis']['llList'][0]):
+            landauData = dataDict[mu]['landauAnalysis']
+            
             # filter out any zero eigenvalues
-            nonzeroEigs = np.where(dataDict[mu]['valList'] != 0.)[0]
-            dataDict[mu]['valList'] = dataDict[mu]['valList'][nonzeroEigs]
-            dataDict[mu]['vecList'] = np.array(dataDict[mu]['vecList'])[nonzeroEigs]
+            nonzeroEigs = np.where(landauData['valList'] != 0.)[0]
+            dataDict[mu]['valList'] = landauData['valList'][nonzeroEigs]
+            dataDict[mu]['vecList'] = np.array(landauData['vecList'])[nonzeroEigs]
            
             # find dimension with minimum eigenvalue (max variance)
-            minIndex = np.argmin(dataDict[mu]['valList'])
+            minIndex = np.argmin(landauData['valList'])
             minIndexList.append(minIndex)
-            minValList.append(dataDict[mu]['valList'][minIndex])
+            minValList.append(landauData['valList'][minIndex])
            
             # find dimension with most evidence for bistability
-            bistableIndex = np.argmin(dataDict[mu]['llList'])
+            bistableIndex = np.argmin(landauData['llList'])
             
             # extract bistability parameters for max bistability dimension
             bistableIndexList.append(bistableIndex)
-            bistableLikelihoodList.append(dataDict[mu]['llList'][bistableIndex])
-            bistableBICList.append(dataDict[mu]['bicDiffList'][bistableIndex])
-            bistableCList.append(dataDict[mu]['cList'][bistableIndex])
-            bistableDList.append(dataDict[mu]['dList'][bistableIndex])
-            bistableNuMuList.append(dataDict[mu]['nuMuList'][bistableIndex])
-            bistableEigvalList.append(dataDict[mu]['valList'][bistableIndex])
+            bistableLikelihoodList.append(landauData['llList'][bistableIndex])
+            bistableBICList.append(landauData['bicDiffList'][bistableIndex])
+            bistableCList.append(landauData['cList'][bistableIndex])
+            bistableDList.append(landauData['dList'][bistableIndex])
+            bistableNuMuList.append(landauData['nuMuList'][bistableIndex])
+            bistableEigvalList.append(landauData['valList'][bistableIndex])
             
             # calculate proportion of samples above the mean in the bistable dimension
-            vec = dataDict[mu]['vecList'][bistableIndex]
-            x = np.dot(dataDict[mu]['finalStates']-dataDict[mu]['sampleMean'],vec)
+            vec = landauData['vecList'][bistableIndex]
+            x = np.dot(landauData['finalStates']-landauData['sampleMean'],vec)
             propAboveMeanList.append( np.mean(x > 0) )
             
-        else: # there was an error in the Mathematica code
+        else: # no landau analysis, or an error in the Mathematica code
             minIndexList.append(np.nan)
             minValList.append(np.nan)
             
@@ -90,6 +110,9 @@ def landauSimulationData_singleRun(datafile):
             bistableEigvalList.append(np.nan)
             
             propAboveMeanList.append(np.nan)
+        
+        #if 'gaussianMixtureAnalysisNone' in dataDict[mu]:
+            
         
     dfData = {'mu': muList,
               'bistable index': bistableIndexList,
