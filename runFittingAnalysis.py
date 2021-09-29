@@ -9,7 +9,7 @@
 #
 
 from criticalDynamics import simpleCollectiveDynamics,allToAllNetworkAdjacency
-from landauAnalysis import landauAnalysis,gaussianMixtureAnalysis
+from landauAnalysis import landauAnalysis,gaussianMixtureAnalysis,principalComponents
 import time
 import sys
 import numpy as np
@@ -101,9 +101,22 @@ def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
         finalStates = dataDict['finalStates']
         
         if runLandauAnalysis:
+            # do dimensionality reduction first if we only want to fit to
+            # the first principal component (it's equivalent and makes the
+            # mathematica code run much faster)
+            if numNuMax == 1:
+                vals,vecs = principalComponents(finalStates)
+                sampleMean = np.mean(finalStates,axis=0)
+                transformedData = np.dot(finalStates-sampleMean,
+                                         np.transpose(vecs))[:,:numNuMax]
+                transformedData = np.real_if_close(transformedData)
+                finalStatesLandau = transformedData
+            else:
+                finalStatesLandau = finalStates
+        
             # run Landau analysis on final states
             startTime = time.time()
-            landauOutput = landauAnalysis(finalStates,numNuMax=numNuMax)
+            landauOutput = landauAnalysis(finalStatesLandau,numNuMax=numNuMax)
             sampleMean = landauOutput.pop('mu')
             landauTimeMinutes = (time.time() - startTime)/60.
         
