@@ -40,7 +40,15 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
         resultList = [ np.loadtxt(outfile,delimiter=',',skiprows=i,max_rows=1) for i in range(8) ]
     except(ValueError):
         print("landauAnalysis: ERROR in Mathematica output.  Returning nans.")
-        return np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan
+        return {'mu': np.nan,
+                'valList': np.nan,
+                'vecList': np.nan,
+                'llList': np.nan,
+                'cList': np.nan,
+                'dList': np.nan,
+                'nuMuList': np.nan,
+                'bicDiffList': np.nan,
+                }
     mu, valList = resultList[0], resultList[1]
     vecList = [ np.real_if_close(re + (0+1j)*im)
                 for re,im in zip(resultList[2].reshape(dim,dim),resultList[3].reshape(dim,dim)) ]
