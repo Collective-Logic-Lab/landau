@@ -111,13 +111,20 @@ def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
                                          np.transpose(vecs))[:,:numNuMax]
                 transformedData = np.real_if_close(transformedData)
                 finalStatesLandau = transformedData
+                # For some reason mathematica chokes when the mean is zero
+                # (by definition here).  Add 1 to everything to avoid this
+                # (doesn't affect anything except the sample mean mu, which
+                # we fix below).
+                dataOffset = 1.
             else:
                 finalStatesLandau = finalStates
+                dataOffset = 0.
         
             # run Landau analysis on final states
             startTime = time.time()
-            landauOutput = landauAnalysis(finalStatesLandau,numNuMax=numNuMax)
-            sampleMean = landauOutput.pop('mu')
+            landauOutput = landauAnalysis(finalStatesLandau + dataOffset,
+                                          numNuMax=numNuMax)
+            sampleMean = landauOutput.pop('mu') - dataOffset
             landauTimeMinutes = (time.time() - startTime)/60.
         
             landauOutput.update(
