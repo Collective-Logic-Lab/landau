@@ -102,9 +102,9 @@ def fittingData_singleRun(datafile):
             bistableEigvalList.append(landauData['valList'][bistableIndex])
             
             # calculate proportion of samples above the mean in the bistable dimension
-            vec = landauData['vecList'][bistableIndex]
-            x = np.dot(dataDict[mu]['finalStates']-landauData['sampleMean'],vec)
-            propAboveMeanList.append( np.mean(x > 0) )
+            #vec = landauData['vecList'][bistableIndex]
+            #x = np.dot(dataDict[mu]['finalStates']-landauData['sampleMean'],vec)
+            #propAboveMeanList.append( np.mean(x > 0) )
             
             landauTimeList.append(landauData['landauTimeMinutes'])
             
@@ -156,7 +156,6 @@ def fittingData_singleRun(datafile):
               'bistable d': bistableDList,
               'bistable nuMu': bistableNuMuList,
               'bistable eigenvalue': bistableEigvalList,
-              'prop. above mean in bistable dim.': propAboveMeanList,
               'min eigenvalue index': minIndexList,
               'min eigenvalue': minValList,
               'network name': [dataDict[mu]['networkName'] for mu in muList],
