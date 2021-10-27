@@ -181,7 +181,7 @@ if __name__ == '__main__':
     Ncomponents = 91
     Nsamples = 100 #16 # number of samples to fit to
     NsamplesOriginal = 1000 # number of samples in original simulation datafiles
-    samplesOffset = 0 # index of first sample used for fitting
+    samplesOffset = 500 #0 # index of first sample used for fitting
     Nmus = 51
     
     # if command line argument is given, use it to set runIndex
