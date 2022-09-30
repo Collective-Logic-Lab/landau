@@ -179,7 +179,7 @@ if __name__ == '__main__':
     # parameters for use in sampling from simulation data
     networkName = 'allToAll'
     Ncomponents = 91
-    Nsamples = 16 #100 #16 # number of samples to fit to
+    Nsamples = 100 #16 # number of samples to fit to
     NsamplesOriginal = 1000 # number of samples in original simulation datafiles
     samplesOffset = 500 #0 # index of first sample used for fitting
     Nmus = 51

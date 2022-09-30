@@ -30,24 +30,29 @@ def trimFittingData(datafilePrefix):
         print("trimFittingData: Saved data to {}".format(newfilename))
         save(d,newfilename)
 
-def fittingData(datafilePrefix):
+def fittingData(datafilePrefix,samplesOffsetList=[0,]):
 
     dataDict = {}
     dfDict = {}
     
-    # loop over all files with the given prefix
-    fileList = glob.glob("{}*".format(datafilePrefix))
-    if len(fileList) == 0:
-        raise Exception("No files found with prefix {}".format(datafilePrefix))
-    for file in fileList:
-        dataDictSingle,dfSingle = fittingData_singleRun(file)
-        runIndex = dataDictSingle[list(dataDictSingle.keys())[0]]["runIndex"]
+    # loop over samplesOffset
+    for samplesOffset in samplesOffsetList:
+        # loop over all files with the given prefix
+        fileList = glob.glob("{}*offset{}*".format(datafilePrefix,
+                                                   samplesOffset))
+        if len(fileList) == 0:
+            raise Exception("No files found matching pattern {}*offset{}*".format(
+                                                    datafilePrefix,
+                                                    samplesOffset))
+        for file in fileList:
+            dataDictSingle,dfSingle = fittingData_singleRun(file)
+            runIndex = dataDictSingle[list(dataDictSingle.keys())[0]]["runIndex"]
+            
+            dataDict[(runIndex,samplesOffset)] = dataDictSingle
+            dfDict[(runIndex,samplesOffset)] = dfSingle
         
-        dataDict[runIndex] = dataDictSingle
-        dfDict[runIndex] = dfSingle
-        
-    df = pd.concat(dfDict,names=["runIndex"])
-    df = df.sort_values(['mu','runIndex']).reset_index().drop(columns='level_1')
+    df = pd.concat(dfDict,names=["runIndex","samplesOffset"])
+    df = df.sort_values(['mu','runIndex']).reset_index().drop(columns='level_2')
     
     return dataDict,df
 
@@ -76,7 +81,7 @@ def fittingData_singleRun(datafile):
     gaussianTimeMinutesList1 = []
     for mu in muList:
         if ('landauAnalysis' in dataDict[mu]) \
-            and not np.isnan(dataDict[mu]['landauAnalysis']['llList'][0]):
+            and not np.isnan(dataDict[mu]['landauAnalysis']['llList']):
             landauData = dataDict[mu]['landauAnalysis']
             
             # filter out any zero eigenvalues
