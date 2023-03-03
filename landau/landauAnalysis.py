@@ -12,7 +12,7 @@ import numpy as np
 import os
 from sklearn.mixture import GaussianMixture
 
-def landauAnalysis(data,numNuMax=1,codeDir='./'):
+def landauAnalysis(data,numNuMax=1):
     """
     Uses Mathematica code to run Landau transition analysis.
     
@@ -20,6 +20,8 @@ def landauAnalysis(data,numNuMax=1,codeDir='./'):
     
     Returns: dictionary with mu,valList,vecList,llList,cList,dList,nuMuList,bicDiffList
     """
+    codeDir = os.path.dirname(os.path.realpath(__file__))
+    
     data = np.array(data)
     if len(np.shape(data)) != 2:
         raise TypeError
@@ -46,15 +48,16 @@ def landauAnalysis(data,numNuMax=1,codeDir='./'):
         dataForMathematica = data + dataOffset
         
     # save data to csv file
-    datafile = "{}.csv".format(tempName)
+    datafile = "{}/{}.csv".format(codeDir,tempName)
     np.savetxt(datafile,dataForMathematica,delimiter=',')
     
     # call mathematica code
-    call([codeDir+"/runLandauTransitionAnalysis.wls",datafile,str(numNuMax)])
+    call(["./runLandauTransitionAnalysis.wls",datafile,str(numNuMax)],
+        cwd=codeDir)
     os.remove(datafile)
     
     # read result
-    outfile = "{}_LTAoutput.csv".format(tempName)
+    outfile = "{}/{}_LTAoutput.csv".format(codeDir,tempName)
     try:
         resultList = [ np.loadtxt(outfile,delimiter=',',skiprows=i,max_rows=1) for i in range(8) ]
     except(ValueError):
