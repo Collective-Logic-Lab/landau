@@ -12,7 +12,7 @@ import numpy as np
 import os
 from sklearn.mixture import GaussianMixture
 
-def landauAnalysis(data,numNuMax=10,codeDir='./'):
+def landauAnalysis(data,numNuMax=1,codeDir='./'):
     """
     Uses Mathematica code to run Landau transition analysis.
     
@@ -26,9 +26,28 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     dim = len(data[0])
     tempName = "temp_{}".format(os.getpid())
         
+    if numNuMax == 1:
+        # do dimensionality reduction first if we only want to fit to
+        # the first principal component (it's equivalent and makes the
+        # mathematica code run much faster)
+        vals,vecs = principalComponents(data)
+        sampleMean = np.mean(data,axis=0)
+        transformedData = np.dot(data-sampleMean,
+                                 np.transpose(vecs))[:,:numNuMax]
+        transformedData = np.real_if_close(transformedData)
+        # For some reason mathematica chokes when the mean is zero
+        # (by definition here).  Add 1 to everything to avoid this
+        # (doesn't affect anything except the sample mean mu, which
+        # we fix below).
+        dataOffset = 1.
+        dataForMathematica = transformedData + dataOffset
+    else:
+        dataOffset = 0.
+        dataForMathematica = data + dataOffset
+        
     # save data to csv file
     datafile = "{}.csv".format(tempName)
-    np.savetxt(datafile,data,delimiter=',')
+    np.savetxt(datafile,dataForMathematica,delimiter=',')
     
     # call mathematica code
     call([codeDir+"/runLandauTransitionAnalysis.wls",datafile,str(numNuMax)])
@@ -67,7 +86,7 @@ def landauAnalysis(data,numNuMax=10,codeDir='./'):
     numExtraParameters = 1
     bicDiffList = 2.*llList + numExtraParameters*np.log(len(data))
                             
-    return {'mu': mu,
+    return {'mu': mu - dataOffset,
             'valList': valList,
             'vecList': vecList,
             'llList': llList,
