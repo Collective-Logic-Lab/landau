@@ -71,11 +71,16 @@ def landauAnalysis(data,numNuMax=1):
                 'nuMuList': np.nan,
                 'bicDiffList': np.nan,
                 }
-    mu, valList = resultList[0], resultList[1]
-    vecList = [ np.real_if_close(re + (0+1j)*im)
-                for re,im in zip(resultList[2].reshape(dim,dim),resultList[3].reshape(dim,dim)) ]
+    mu = resultList[0]
     llList = resultList[4]
     cList, dList, nuMuList = resultList[5], resultList[6], resultList[7]
+    if numNuMax == 1: # take PCA data from python
+        valList = vals
+        vecList = vecs
+    else: # take PCA data from mathematica
+        valList = resultList[1]
+        vecList = [ np.real_if_close(re + (0+1j)*im)
+                    for re,im in zip(resultList[2].reshape(dim,dim),resultList[3].reshape(dim,dim)) ]
     os.remove(outfile)
     
     # reshape list arrays to get consistent results when they have length 1
