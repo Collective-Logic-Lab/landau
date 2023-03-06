@@ -11,3 +11,5 @@ __pycache__/
 *.err
 *.out
 
+*.egg-info
+
