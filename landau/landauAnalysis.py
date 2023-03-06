@@ -25,7 +25,6 @@ def landauAnalysis(data,numNuMax=1):
     data = np.array(data)
     if len(np.shape(data)) != 2:
         raise TypeError
-    dim = len(data[0])
     tempName = "temp_{}".format(os.getpid())
         
     if numNuMax == 1:
@@ -46,6 +45,7 @@ def landauAnalysis(data,numNuMax=1):
     else:
         dataOffset = 0.
         dataForMathematica = data + dataOffset
+    dim = len(dataForMathematica[0])
         
     # save data to csv file
     datafile = "{}/{}.csv".format(codeDir,tempName)
@@ -74,13 +74,9 @@ def landauAnalysis(data,numNuMax=1):
     mu = resultList[0]
     llList = resultList[4]
     cList, dList, nuMuList = resultList[5], resultList[6], resultList[7]
-    if numNuMax == 1: # take PCA data from python
-        valList = vals
-        vecList = vecs
-    else: # take PCA data from mathematica
-        valList = resultList[1]
-        vecList = [ np.real_if_close(re + (0+1j)*im)
-                    for re,im in zip(resultList[2].reshape(dim,dim),resultList[3].reshape(dim,dim)) ]
+    valList = resultList[1]
+    vecList = [ np.real_if_close(re + (0+1j)*im)
+                for re,im in zip(resultList[2].reshape(dim,dim),resultList[3].reshape(dim,dim)) ]
     os.remove(outfile)
     
     # reshape list arrays to get consistent results when they have length 1
