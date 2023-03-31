@@ -9,6 +9,7 @@
 
 from subprocess import call
 import numpy as np
+from scipy.sparse.linalg import eigs
 import os
 from sklearn.mixture import GaussianMixture
 
@@ -31,7 +32,7 @@ def landauAnalysis(data,numNuMax=1):
         # do dimensionality reduction first if we only want to fit to
         # the first principal component (it's equivalent and makes the
         # mathematica code run much faster)
-        vals,vecs = principalComponents(data)
+        vals,vecs = principalComponents(data,k=1)
         sampleMean = np.mean(data,axis=0)
         transformedData = np.dot(data-sampleMean,
                                  np.transpose(vecs))[:,:numNuMax]
@@ -100,7 +101,7 @@ def landauAnalysis(data,numNuMax=1):
             'bicDiffList': bicDiffList,
             }
 
-def principalComponents(data,max_ll_cov=True,reg_covar=1e-6):
+def principalComponents(data,max_ll_cov=True,reg_covar=1e-6,k=None,seed=1234):
     """
     Returns eigenvalues and eigenvectors given by principal components analysis.
 
@@ -117,12 +118,24 @@ def principalComponents(data,max_ll_cov=True,reg_covar=1e-6):
                               by n-1).
     reg_covar (1e-6)        : Regularization added to the diagonal of the covariance
                               matrix, as used in sklearn.mixture.GaussianMixture
+    k (None)                : Number of principal components to compute.  If None,
+                              defaults to all principal components (# dimensions)
+    seed (1234)             : Used to set the random number generator for
+                              initialization of scipy.sparse.linalg.eigs in
+                              the case that k<(# dimensions)
     """
     # compute covariance matrix
     c = np.cov(data.T,bias=max_ll_cov)
     c += reg_covar*np.eye(len(c))
     
-    vals,vecs = np.linalg.eig(c)
+    if (k is None) or (k == len(c)):
+        vals,vecs = np.linalg.eig(c)
+    elif k < len(c): # use scipy.sparse.linalg.eigs for speed when k<(# dimensions)
+        np.random.seed(seed)
+        v0 = np.random.rand(len(c))
+        vals,vecs = eigs(c,k=k,v0=v0)
+    else:
+        raise(Exception,"k cannot be greater than the width of the data")
     
     return np.real_if_close(vals), [ np.real_if_close(v) for v in vecs.T ]
     
