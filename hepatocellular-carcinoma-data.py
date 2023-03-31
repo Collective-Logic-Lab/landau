@@ -88,7 +88,7 @@ if __name__ == '__main__':
     paired_with_control_groups = [ ('control',group) for group in sorted_groups[1:] ]
     groups_to_include_list = individual_groups + paired_with_control_groups
 
-    skip_factor = 10
+    skip_factor = 1
 
     # run analysis
     resultsDict = analyze_multiple_groups(expr_by_group,
