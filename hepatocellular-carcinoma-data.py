@@ -17,10 +17,10 @@ from landau import landauAnalysis
 from toolbox.simplePickle import save
 
 def load_data():
-    expr = pd.read_csv('../Data/230329/GSE6764.csv',index_col=0).T
-    groups = pd.read_csv('../Data/230329/GSE6764_groups.csv')['x']
-    gene_symbols = pd.read_csv('../Data/230329/GSE6764_gene_symbols.csv')['x']
-    gene_functions = pd.read_csv('../Data/230329/GSE6764_gene_GO_functions.csv')['x']
+    expr = pd.read_csv('Data/230329/GSE6764.csv',index_col=0).T
+    groups = pd.read_csv('Data/230329/GSE6764_groups.csv')['x']
+    gene_symbols = pd.read_csv('Data/230329/GSE6764_gene_symbols.csv')['x']
+    gene_functions = pd.read_csv('Data/230329/GSE6764_gene_GO_functions.csv')['x']
 
     # create gene info dataframe indexed by ID
     genedf = pd.DataFrame(np.array([gene_symbols,gene_functions]).T,
