@@ -15,6 +15,7 @@
 ## 4.4.2016
 ## 
 
+#SBATCH -p fn1 # fn1 = high-memory partition
 #SBATCH -n 4 #40 #20       # number of cores
 #SBATCH -t 1-00:00 # wall time (D-HH:MM)
 #SBATCH -o slurm.landau_HCC.%A_%a.out
