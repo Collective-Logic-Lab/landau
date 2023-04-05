@@ -20,7 +20,7 @@
 #SBATCH -t 2-00:00 # wall time (D-HH:MM)
 #SBATCH -o slurm.landau_test.%A_%a.out
 #SBATCH -e slurm.landau_test.%A_%a.err
-#SBATCH -q aggressive
+#SBATCH -q normal
 
 #module load anaconda/2.1.0
 #module load gcc
@@ -50,13 +50,13 @@
 
 module load anaconda/py3
 
-module load mathematica/12.1
+module load mathematica/13.1
 
 #export PATH="/home/bdaniel6/anaconda2/bin:$PATH"
 #export PYTHONPATH=$PYTHONPATH:~/lib/python2.7/site-packages/
 #export MPLBACKEND=Agg
 
-cd ~/landau/
+cd ~/landau/landau/
 
 # 2020.8.18 trying to use the python3 environment in conda 
 # (seems harder than it should be)
@@ -78,6 +78,6 @@ cd ~/landau/
 #
 #conda activate python3
 
-python ~/landau/runLandauTestSimulations.py $SLURM_ARRAY_TASK_ID
+python ~/landau/landau/runLandauTestSimulations.py $SLURM_ARRAY_TASK_ID
 
 

@@ -83,7 +83,7 @@ def getGitHash(dir='./'):
 if __name__ == '__main__':
 
     # set up parameters of run
-    Ncomponents = 91 #10 #50 #100 #10
+    Ncomponents = 10 #91 #10 #50 #100 #10
     Nsamples = 1000 #16 #100
     tFinal = 100
     networkName = 'allToAll'
@@ -111,7 +111,6 @@ if __name__ == '__main__':
                 'Ncomponents': Ncomponents,
                 'gitHash': getGitHash(),
                 'runIndex': runIndex,
-                'runLandauAnalysis': runLandauAnalysis,
                }
 
     # run the simulations
