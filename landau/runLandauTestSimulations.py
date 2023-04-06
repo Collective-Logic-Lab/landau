@@ -84,11 +84,11 @@ if __name__ == '__main__':
 
     # set up parameters of run
     Ncomponents = 1000 #91 #10 #50 #100 #10
-    Nsamples = 1000 #16 #100
+    Nsamples = 16 #1000 #16 #100
     tFinal = 500 #100
     networkName = 'allToAll'
     muMin,muMax = 0./Ncomponents,2./Ncomponents
-    Nmus = 51 #11 #101
+    Nmus = 31 #51 #11 #101
     seedStart = 123
         
     # if command line argument is given, use it to modify seedStart
