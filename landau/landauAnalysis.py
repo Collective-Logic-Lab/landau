@@ -26,9 +26,10 @@ def landauAnalysis(data,numNuMax=1):
     data = np.array(data)
     if len(np.shape(data)) != 2:
         raise TypeError
+    numSamples,numDimensions = np.shape(data)
     tempName = "temp_{}".format(os.getpid())
         
-    if numNuMax == 1:
+    if (numNuMax == 1) and (numDimensions > 1):
         # do dimensionality reduction first if we only want to fit to
         # the first principal component (it's equivalent and makes the
         # mathematica code run much faster)
