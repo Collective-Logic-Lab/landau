@@ -18,8 +18,8 @@
 
 #SBATCH -n 1 #40 #20       # number of cores
 #SBATCH -t 2-00:00 # wall time (D-HH:MM)
-#SBATCH -o slurm.landau_test.%A_%a.out
-#SBATCH -e slurm.landau_test.%A_%a.err
+#SBATCH -o slurm.landau_test_1000.%A_%a.out
+#SBATCH -e slurm.landau_test_1000.%A_%a.err
 #SBATCH -q normal
 
 #module load anaconda/2.1.0
