@@ -21,7 +21,7 @@
 #SBATCH -t 0-12:00 # wall time (D-HH:MM)
 #SBATCH -o slurm.landau_run_fitting.%A_%a.out
 #SBATCH -e slurm.landau_run_fitting.%A_%a.err
-#SBATCH -q aggressive
+#SBATCH -q normal
 
 #module load anaconda/2.1.0
 #module load gcc
