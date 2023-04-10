@@ -8,8 +8,8 @@
 # Run data fitting (Landau and/or Gaussian mixture model) and save the results.
 #
 
-from .criticalDynamics import simpleCollectiveDynamics,allToAllNetworkAdjacency
-from .landauAnalysis import landauAnalysis,gaussianMixtureAnalysis,principalComponents
+from criticalDynamics import simpleCollectiveDynamics,allToAllNetworkAdjacency
+from landauAnalysis import landauAnalysis,gaussianMixtureAnalysis,principalComponents
 import time
 import sys
 import numpy as np
