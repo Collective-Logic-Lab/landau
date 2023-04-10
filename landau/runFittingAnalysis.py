@@ -178,11 +178,11 @@ if __name__ == '__main__':
     ndimsGaussianList = [None,1]
     # parameters for use in sampling from simulation data
     networkName = 'allToAll'
-    Ncomponents = 10 #91
+    Ncomponents = 1000 #10 #91
     Nsamples = 16 #100 # number of samples to fit to
-    NsamplesOriginal = 1000 # number of samples in original simulation datafiles
+    NsamplesOriginal = 16 #1000 # number of samples in original simulation datafiles
     samplesOffset = 0 #500 # index of first sample used for fitting
-    Nmus = 51
+    Nmus = 31 #51
     
     # if command line argument is given, use it to set runIndex
     if len(sys.argv) == 2:
