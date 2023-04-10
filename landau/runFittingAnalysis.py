@@ -8,8 +8,8 @@
 # Run data fitting (Landau and/or Gaussian mixture model) and save the results.
 #
 
-from criticalDynamics import simpleCollectiveDynamics,allToAllNetworkAdjacency
-from landauAnalysis import landauAnalysis,gaussianMixtureAnalysis,principalComponents
+from .criticalDynamics import simpleCollectiveDynamics,allToAllNetworkAdjacency
+from .landauAnalysis import landauAnalysis,gaussianMixtureAnalysis,principalComponents
 import time
 import sys
 import numpy as np
@@ -178,10 +178,10 @@ if __name__ == '__main__':
     ndimsGaussianList = [None,1]
     # parameters for use in sampling from simulation data
     networkName = 'allToAll'
-    Ncomponents = 91
-    Nsamples = 100 #16 # number of samples to fit to
+    Ncomponents = 10 #91
+    Nsamples = 16 #100 # number of samples to fit to
     NsamplesOriginal = 1000 # number of samples in original simulation datafiles
-    samplesOffset = 500 #0 # index of first sample used for fitting
+    samplesOffset = 0 #500 # index of first sample used for fitting
     Nmus = 51
     
     # if command line argument is given, use it to set runIndex
