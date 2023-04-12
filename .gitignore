@@ -5,8 +5,10 @@
 *.csv
 
 __pycache__/
+*.pyc
 
 *.dat
+*.pkl
 
 *.err
 *.out
