@@ -9,6 +9,7 @@
 import pandas as pd
 import numpy as np
 from toolbox.simplePickle import load,save
+from pickle import UnpicklingError
 import glob
 
 def trimFittingData(datafilePrefix):
@@ -20,15 +21,20 @@ def trimFittingData(datafilePrefix):
     if len(fileList) == 0:
         raise Exception("No files found with prefix {}".format(datafilePrefix))
     for file in fileList:
-        d = load(file)
-        for mu in d.keys():
-            for gname in ['gaussianMixtureAnalysis1','gaussianMixtureAnalysisNone']:
-                if gname in d[mu]:
-                    d[mu][gname].pop('gSingle')
-                    d[mu][gname].pop('gMultiple')
-        newfilename = file[:-4]+'_trimmed.dat'
-        print("trimFittingData: Saved data to {}".format(newfilename))
-        save(d,newfilename)
+        try:
+            d = load(file)
+        except (EOFError,UnpicklingError,UnicodeDecodeError):
+            d = None
+            print("trimFittingData: Error when reading {}".format(file))
+        if d:
+            for mu in d.keys():
+                for gname in ['gaussianMixtureAnalysis1','gaussianMixtureAnalysisNone']:
+                    if gname in d[mu]:
+                        d[mu][gname].pop('gSingle')
+                        d[mu][gname].pop('gMultiple')
+            newfilename = file[:-4]+'_trimmed.dat'
+            print("trimFittingData: Saved data to {}".format(newfilename))
+            save(d,newfilename)
 
 def fittingData(datafilePrefix,samplesOffsetList=[0,]):
 
