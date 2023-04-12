@@ -164,7 +164,8 @@ def LandauTransitionDistributionRelativeLogPDF(x, mu, Jvals, Jvecs, nu, c, d):
     
     return term1 + term2 + term3
     
-def gaussianMixtureAnalysis(data,ndims=None,cov_type='tied',nclusters=2,**kwargs):
+def gaussianMixtureAnalysis(data,ndims=None,cov_type='tied',nclusters=2,
+    returnFittingObjects=False,**kwargs):
     """
     Compares a gaussian mixture model with nclusters clusters (default 2) to
     a simple single gaussian.
@@ -181,6 +182,8 @@ def gaussianMixtureAnalysis(data,ndims=None,cov_type='tied',nclusters=2,**kwargs
                                   to keeping all dimensions.
     cov_type ('tied')           : Can be {'full', 'tied', 'diag', 'spherical'}.
                                   See sklearn.mixture.GaussianMixture.
+    returnFittingObjects (False): If True, also return the sklearn objects
+                                  representing the fit distributions.
     """
     
     # optionally reduce dimensionality
@@ -213,9 +216,14 @@ def gaussianMixtureAnalysis(data,ndims=None,cov_type='tied',nclusters=2,**kwargs
     bicMultiple = gMultiple.bic(transformedData)
     bicDiff = bicMultiple - bicSingle
     
-    return {'llDiff': llDiff,
-            'bicDiff': bicDiff,
-            'gSingle': gSingle,
-            'gMultiple': gMultiple,
-            }
+    if returnFittingObjects:
+        return {'llDiff': llDiff,
+                'bicDiff': bicDiff,
+                'gSingle': gSingle,
+                'gMultiple': gMultiple,
+                }
+    else:
+        return {'llDiff': llDiff,
+                'bicDiff': bicDiff,
+                }
     
