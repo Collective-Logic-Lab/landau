@@ -14,7 +14,7 @@ import sys
 import numpy as np
 import pandas as pd
 import subprocess # for getGitHash
-from toolbox.simplePickle import save
+from simplePickle import save
 
 
 def runMultipleMus(mus,originalWeightMatrix,baseDict={},

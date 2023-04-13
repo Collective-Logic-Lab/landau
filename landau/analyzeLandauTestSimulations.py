@@ -8,7 +8,7 @@
 
 import pandas as pd
 import numpy as np
-from toolbox.simplePickle import load,save
+from toolbox import load,save
 from pickle import UnpicklingError
 import glob
 
@@ -54,6 +54,8 @@ def fittingData(datafilePrefix,samplesOffsetList=[0,]):
             dataDictSingle,dfSingle = fittingData_singleRun(file)
             runIndex = dataDictSingle[list(dataDictSingle.keys())[0]]["runIndex"]
             
+            if (runIndex,samplesOffset) in dataDict:
+                print("fittingData: WARNING: OVERLAP FOR {},{} with file {}".format(runIndex,samplesOffset,file))
             dataDict[(runIndex,samplesOffset)] = dataDictSingle
             dfDict[(runIndex,samplesOffset)] = dfSingle
         

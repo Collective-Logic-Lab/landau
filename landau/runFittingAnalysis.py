@@ -15,7 +15,7 @@ import sys
 import numpy as np
 import pandas as pd
 import subprocess # for getGitHash
-from toolbox.simplePickle import load,save
+from toolbox import load,save
 
 def loadBeeData(log=True,skipDays=[4,]):
     """
@@ -178,11 +178,11 @@ if __name__ == '__main__':
     ndimsGaussianList = [None,1]
     # parameters for use in sampling from simulation data
     networkName = 'allToAll'
-    Ncomponents = 1000 #10 #91
+    Ncomponents = 10 #1000 #10 #91
     Nsamples = 16 #100 # number of samples to fit to
-    NsamplesOriginal = 16 #1000 # number of samples in original simulation datafiles
+    NsamplesOriginal = 1000 #16 #1000 # number of samples in original simulation datafiles
     samplesOffset = 0 #500 # index of first sample used for fitting
-    Nmus = 31 #51
+    Nmus = 51 #31 #51
     
     # if command line argument is given, use it to set runIndex
     if len(sys.argv) == 2:
