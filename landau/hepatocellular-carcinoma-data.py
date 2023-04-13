@@ -11,10 +11,10 @@
 import pandas as pd
 import numpy as np
 
-from landau.landauAnalysis import principalComponents
-from landau import landauAnalysis
+from landauAnalysis import principalComponents
+import landauAnalysis
 
-from toolbox.simplePickle import save
+from toolbox import save
 
 def load_data():
     expr = pd.read_csv('Data/230329/GSE6764.csv',index_col=0).T
