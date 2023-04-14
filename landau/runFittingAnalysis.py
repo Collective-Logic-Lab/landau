@@ -21,7 +21,7 @@ def loadBeeData(log=True,skipDays=[4,]):
     """
     Returns dictionary keyed by age in days
     """
-    xlFile = pd.ExcelFile("../Data/170614/nanostring data with VG protein data.xlsx")
+    xlFile = pd.ExcelFile("../../Data/170614/nanostring data with VG protein data.xlsx")
     rawData = xlFile.parse('Sheet1')
     speciesNames = [name for name in rawData.keys()][4:-1]
     ages = np.unique(rawData['Age'])
