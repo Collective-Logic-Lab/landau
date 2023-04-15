@@ -24,17 +24,17 @@
 
 
 inputFilename = $ScriptCommandLine[[2]];
-Print["runLandauTransitionAnalysis: Reading data from "<>inputFilename];
+(*Print["runLandauTransitionAnalysis: Reading data from "<>inputFilename];*)
 data = Import[inputFilename];
 
 
 numNuMax = ToExpression[$ScriptCommandLine[[3]]];
 
 
-Print["DEBUG: $ProcessorCount = "<>ToString[$ProcessorCount]]
+(*Print["DEBUG: $ProcessorCount = "<>ToString[$ProcessorCount]]*)
 
 
-Print["runLandauTransitionAnalysis: Running analysis..."];
+(*Print["runLandauTransitionAnalysis: Running analysis..."];*)
 result = LandauMaxLikelihood[data,numNuMax];
 
 
@@ -59,5 +59,5 @@ resultOutput = { result[[1]],
 
 
 outputFilename = FileBaseName[inputFilename]<>"_LTAoutput.csv";
-Print["runLandauTransitionAnalysis: Writing results to "<>outputFilename];;
+(*Print["runLandauTransitionAnalysis: Writing results to "<>outputFilename];;*)
 Export[outputFilename,resultOutput];
