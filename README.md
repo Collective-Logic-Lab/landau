@@ -16,3 +16,11 @@ The figures in the publication can be reproduced using the following notebooks:
 * Figure 5: critical-state-correlations.ipynb
 * Figure 6A: hepatocellular-carcinoma-data.ipynb
 * Figure 6B: LandauTransition-HCC.nb	
+
+## Dependencies
+* Python 3
+* Mathematica
+* numpy
+* scipy
+* scikit-learn
+* optional for running simulations: pandas, numba
