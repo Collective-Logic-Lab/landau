@@ -13,7 +13,7 @@ setup(
     description = (""),
     license = "",
     keywords = "",
-    url = "https://github.com/bcdaniels/landau",
+    url = "https://github.com/Collective-Logic-Lab/landau",
     packages=['landau',],
     long_description=read('README.md'),
     classifiers=[
