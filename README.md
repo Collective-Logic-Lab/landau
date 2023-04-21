@@ -19,8 +19,24 @@ The figures in the publication can be reproduced using the following notebooks:
 
 ## Dependencies
 * Python 3
-* Mathematica
+* WolframScript (either through a Mathematica install or standalone)
 * numpy
 * scipy
 * scikit-learn
 * optional for running simulations: pandas, numba
+
+## Installation
+
+To install the package and its python dependencies using `pip`, clone the repository, descend into the `landau/` folder, and run
+
+```
+pip install -e .
+```
+
+To automatically include the optional dependencies for running test simulations, instead run
+
+```
+pip install -e '.[simulation]'
+```
+
+WolframScript must also be installed on the system.  This can be accomplished by installing Mathematica (and using the prepackaged Extras installer on Mac) or installed as a standalone package available for free download here: https://www.wolfram.com/wolframscript/ 
