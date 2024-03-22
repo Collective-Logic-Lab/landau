@@ -38,3 +38,12 @@ class TestLandau(unittest.TestCase):
                                fitting_data['llList'][0])
         self.assertAlmostEqual(-2.99133933,
                                fitting_data['bicDiffList'][0])
+
+class TestLandauHelpers(unittest.TestCase):
+
+    def test_normalizationZ(self):
+        """
+        Test calculation of normalization factor Z
+        """
+        Z1 = landauAnalysis.normalizationZ(1,1,1,1)
+        self.assertAlmostEqual(Z1,2.042460133912278)

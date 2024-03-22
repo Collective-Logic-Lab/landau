@@ -164,6 +164,34 @@ def LandauTransitionDistributionRelativeLogPDF(x, mu, Jvals, Jvecs, nu, c, d):
     
     return term1 + term2 + term3
     
+def normalizationZ(Jnu,c,h,d,maxorder=30):
+    """
+    Series estimate of the normalization factor
+
+    \int_{-\infty}^{\infty} \exp( LandauTransitionDistributionRelativeLogPDF ) dx
+    """
+    # define ranges of n and m to sum over
+    n_list = np.arange(maxorder//2)
+    m_list = np.arange(maxorder)
+
+    # define all combinations of n and m using 2D grids
+    n,m = np.meshgrid(n_list,m_list)
+
+    # compute factors for series
+    factor1 = ((-h*Jnu**(3/2)/3)**(2*n)) / factorial(2*n)
+    factor2 = ((-c*Jnu/2)**m) / factorial(m)
+    factor3 = gamma((6*n + 2*m + 1)/4) / ( ((d*Jnu**2)/4)**((6*n + 2*m + 1)/4) )
+    summand_mat = factor1 * factor2 * factor3
+    result = 0.5 * np.sum(summand_mat)
+
+    # check for convergence: large n and m should be adding small corrections
+    result_smaller_order = 0.5*(np.sum(summand_mat[:-1,:-1]))
+    if abs(result_smaller_order-result)/abs(result) > 1e-5:
+        print("normalizationZ: WARNING: lack of convergence for Jnu = {}, c = {}, h = {}, d = {}, maxorder = {}".format(
+            Jnu,c,h,d,maxorder))
+    
+    return result
+    
 def gaussianMixtureAnalysis(data,ndims=None,cov_type='tied',nclusters=2,
     returnFittingObjects=False,**kwargs):
     """
