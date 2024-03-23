@@ -12,8 +12,22 @@ import numpy as np
 from scipy.sparse.linalg import eigs
 import os
 from sklearn.mixture import GaussianMixture
+from scipy.special import gamma,factorial
 
-def landauAnalysis(data,numNuMax=1):
+def landauAnalysis(data):
+    """
+    Run Landau transition analysis.
+    
+    Input: Data matrix, shape (#samples)x(#dimensions)
+    
+    Returns: dictionary with mu,valList,vecList,llList,cList,dList,nuMuList,bicDiffList
+    
+    (Should produce equivalent output to landauAnalysis_mathematica
+    with numNuMax=1)
+    """
+    pass
+
+def landauAnalysis_mathematica(data,numNuMax=1):
     """
     Uses Mathematica code to run Landau transition analysis.
     
@@ -140,7 +154,7 @@ def principalComponents(data,max_ll_cov=True,reg_covar=1e-6,k=None,seed=1234):
     
     return np.real_if_close(vals), [ np.real_if_close(v) for v in vecs.T ]
     
-def LandauTransitionDistributionRelativeLogPDF(x, mu, Jvals, Jvecs, nu, c, d):
+def LandauTransitionDistributionRelativeLogPDF_multiple_dimensions(x, mu, Jvals, Jvecs, nu, c, d):
     """
     x should have length (#dimensions)
     
@@ -163,7 +177,23 @@ def LandauTransitionDistributionRelativeLogPDF(x, mu, Jvals, Jvecs, nu, c, d):
     term3 = - (d/4.) * nuJnu**2 * np.dot(x - mu,nu)**4
     
     return term1 + term2 + term3
+
+def LandauTransitionDistributionRelativeLogPDF(x, mu, Jnu, c, h, d):
+    """
+    x should be a single number
     
+    (Note: mu here is the mean, not the interaction strength)
+    """
+    assert(len(np.shape(x))==0)
+    
+    term1 = -(1./2.)* Jnu * (x - mu)**2
+    term2 = - ((c - 1.)/2.) * Jnu * (x - mu)**2
+    term3 = - (h/3.) * Jnu**(3/2) * (x - mu)**3
+    term4 = - (d/4.) * Jnu**2 * (x - mu)**4
+    
+    return term1 + term2 + term3 + term4
+
+
 def normalizationZ(Jnu,c,h,d,maxorder=30):
     """
     Series estimate of the normalization factor
