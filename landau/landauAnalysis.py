@@ -193,6 +193,19 @@ def LandauTransitionDistributionRelativeLogPDF(x, mu, Jnu, c, h, d):
     
     return term1 + term2 + term3 + term4
 
+def logNormalizationGaussian(Jnu):
+    """
+    Normalization factor to turn LandauTransitionDistributionRelativeLogPDF
+    with c = 1, h = d = 0, into a normalized Gaussian distribution
+    
+    Jnu = 1 / variance
+    """
+    return 0.5 * np.log(2*np.pi) - 0.5 * np.log(Jnu)
+
+def GaussianDistributionLogPDF(x, mu, Jnu):
+    rellogpdf = LandauTransitionDistributionRelativeLogPDF(x,mu,Jnu,1,0,0)
+    Z = logNormalizationGaussian(Jnu)
+    return rellogpdf - Z
 
 def normalizationZ(Jnu,c,h,d,maxorder=30):
     """
