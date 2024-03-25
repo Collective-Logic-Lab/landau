@@ -8,6 +8,7 @@
 
 from landau import landauAnalysis
 import numpy as np
+import scipy.stats
 import unittest
 
 TEST_DATA_1D = np.transpose([[ 1,2,2,3,6,7,7,9 ]])
@@ -47,3 +48,17 @@ class TestLandauHelpers(unittest.TestCase):
         """
         Z1 = landauAnalysis.normalizationZ(1,1,1,1)
         self.assertAlmostEqual(Z1,2.042460133912278)
+
+    def test_gaussian(self):
+        """
+        Test calculation of Gaussian likelihoods
+        """
+        # compare our gaussian pdf to scipy.stats's
+        x = 0.1
+        loc = 2
+        sigma = 5
+        lpdf = landauAnalysis.GaussianDistributionLogPDF(x,
+            loc,1./sigma)
+        lpdf2 = scipy.stats.norm.logpdf(x,
+            loc=loc,scale=np.sqrt(sigma))
+        self.assertAlmostEqual(lpdf,lpdf2)
