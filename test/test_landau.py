@@ -48,6 +48,10 @@ class TestLandauHelpers(unittest.TestCase):
         """
         Z1 = landauAnalysis.normalizationZ(1,1,1,1)
         self.assertAlmostEqual(Z1,2.042460133912278)
+        
+        # harder case that requires maxorder > 100
+        Z2 = landauAnalysis.normalizationZ(0.003,-300,0.1,300)
+        self.assertAlmostEqual(Z2,1.3993104423514305e+33)
 
     def test_gaussian(self):
         """
