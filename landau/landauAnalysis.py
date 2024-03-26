@@ -13,6 +13,7 @@ from scipy.sparse.linalg import eigs
 import os
 from sklearn.mixture import GaussianMixture
 from scipy.special import gamma,factorial,gammaln
+import scipy.optimize
 
 def landauAnalysis(data):
     """
@@ -271,6 +272,45 @@ def normalizationZ(Jnu,c,h,d,maxorder=300):
             Jnu,c,h,d,maxorder))
     
     return result
+    
+def log_likelihood(x_list,c,h,d,numu,maxorder=300):
+    """
+    x_list should be a list of single numbers of length num_samples
+    """
+    mu = np.mean(x_list)
+    Jnu = 1./np.var(x_list)
+    Z = normalizationZ(Jnu,c,h,d,maxorder)
+    log_likelihoods = [ LandauTransitionDistributionRelativeLogPDF(x,mu+numu,Jnu,c,h,d) - np.log(Z) for x in x_list ]
+    return np.sum(log_likelihoods)
+    
+def log_likelihood_difference_from_gaussian(x_list,c,h,d,numu,maxorder=300):
+    """
+    x_list should be a list of single numbers of length num_samples
+    """
+    mu = np.mean(x_list)
+    Jnu = 1./np.var(x_list)
+    landau_ll = log_likelihood(x_list,c,h,d,numu,maxorder)
+    gaussian_ll = np.sum([ GaussianDistributionLogPDF(x,mu,Jnu) for x in x_list ])
+    return landau_ll - gaussian_ll
+    
+def maximize_landau_log_likelihood(x_list,cinit=-1,hinit=1e-3,
+    dinit=2,numuinit=0,maxorder=500,cmax=1.5,abs_hmax=None,dmin=0.1):
+    """
+    Find maximum likelihood fit to the landau distribution including bias.
+    """
+    func = lambda params: -log_likelihood_difference_from_gaussian(x_list,
+        *params,maxorder=maxorder)
+    
+    # set parameter bounds
+    if abs_hmax is None:
+        hbounds = (None,None)
+    else:
+        hbounds = (-abs_hmax,abs_hmax)
+    cbounds,dbounds,numubounds = (None,cmax),(dmin,None),(None,None)
+    
+    # do optimization
+    return scipy.optimize.minimize(func,(cinit,hinit,dinit,numuinit),
+        bounds=(cbounds,hbounds,dbounds,numubounds))
     
 def gaussianMixtureAnalysis(data,ndims=None,cov_type='tied',nclusters=2,
     returnFittingObjects=False,**kwargs):
