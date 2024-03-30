@@ -15,18 +15,67 @@ from sklearn.mixture import GaussianMixture
 from scipy.special import gamma,factorial,gammaln
 import scipy.optimize
 
-def landauAnalysis(data):
+def landauAnalysis(data,include_bias=True):
     """
     Run Landau transition analysis.
     
     Input: Data matrix, shape (#samples)x(#dimensions)
     
-    Returns: dictionary with mu,valList,vecList,llList,cList,dList,nuMuList,bicDiffList
+    Returns: dictionary with mu,vals,vecs,ll,c,h,d,nuMu,
+        bicDiff,numExtraParameters,include_bias
     
-    (Should produce equivalent output to landauAnalysis_mathematica
-    with numNuMax=1)
+    include_bias (True)     : If True, include 3rd order term (corresponding
+                              to parameter h) that allows for one side of
+                              the distribution to be favored over the other.
+                              If False, set h = 0.  Note that this choice
+                              affects the number of fit parameters.
+                              
+    bicDiff measures the difference in BIC between the fit model and
+    a single Gaussian.
+    
+    (This function should produce equivalent output to
+     landauAnalysis_mathematica with bias=False, numNuMax=1)
     """
-    pass
+    data = np.array(data)
+    if len(np.shape(data)) != 2:
+        raise TypeError
+    #numSamples,numDimensions = np.shape(data)
+    
+    mu = data.mean(axis=0)
+    vals,vecs = principalComponents(data)
+    
+    # project onto first principal component and fit landau model
+    data_proj = principal_component_proj(data)
+    if include_bias:
+        abs_hmax = None
+    else:
+        abs_hmax = 1e-20
+    result = maximize_landau_log_likelihood(data_proj,
+                                            abs_hmax=abs_hmax)
+    
+    # get useful info from result
+    fit_ll = result.fun
+    fit_c,fit_h,fit_d,fit_numu = result.x
+    
+    # compute bic
+    if include_bias:
+        numExtraParameters = 2
+    else:
+        numExtraParameters = 1
+    bicDiff = 2.*fit_ll + numExtraParameters*np.log(len(data))
+    
+    return {'mu': mu,
+        'vals': vals,
+        'vecs': vecs,
+        'll': fit_ll,
+        'c': fit_c,
+        'h': fit_h,
+        'd': fit_d,
+        'nuMu': fit_numu,
+        'bicDiff': bicDiff,
+        'numExtraParameters': numExtraParameters,
+        'include_bias': include_bias,
+        }
 
 def landauAnalysis_mathematica(data,numNuMax=1):
     """
@@ -154,6 +203,19 @@ def principalComponents(data,max_ll_cov=True,reg_covar=1e-6,k=None,seed=1234):
         raise(Exception,"k cannot be greater than the width of the data")
     
     return np.real_if_close(vals), [ np.real_if_close(v) for v in vecs.T ]
+    
+def principal_component_proj(data):
+    """
+    Given data of shape (# samples)x(# dimensions), returns the
+    1-dimensional projection of length (# samples) onto the first
+    principal component.
+
+    Note that the projection is also centered to have mean 0.
+    """
+    PCAvals,PCAvecs = principalComponents(data)
+    projVec = PCAvecs[0]
+    sampleMean = data.mean(axis=0)
+    return np.dot(data-sampleMean,projVec)
     
 def LandauTransitionDistributionRelativeLogPDF_multiple_dimensions(x, mu, Jvals, Jvecs, nu, c, d):
     """

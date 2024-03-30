@@ -17,11 +17,12 @@ import pandas as pd
 import subprocess # for getGitHash
 from toolbox import load,save
 
-def loadBeeData(log=True,skipDays=[4,]):
+def loadBeeData(log=True,skipDays=[4,],
+    filepath="~/ASUDropbox/Research/bees/geneExpression/Data/170614/nanostring data with VG protein data.xlsx"):
     """
     Returns dictionary keyed by age in days
     """
-    xlFile = pd.ExcelFile("../../Data/170614/nanostring data with VG protein data.xlsx")
+    xlFile = pd.ExcelFile(filepath)
     rawData = xlFile.parse('Sheet1')
     speciesNames = [name for name in rawData.keys()][4:-1]
     ages = np.unique(rawData['Age'])
@@ -62,7 +63,7 @@ def loadSimulationData(datafile,numSamples,samplesOffset):
     
     for mu,data in samplesDataDict.items():
         # remove any existing fitting analysis to avoid confusion
-        analysisKeys = ['runLandauAnalysis','landauTimeMinutes','numNuMax',
+        analysisKeys = ['runLandauAnalysis','landauTimeMinutes',
                         'sampleMean','valList','vecList','llList','cList','dList',
                         'simTimeMinutes']
         for k in analysisKeys:
@@ -78,7 +79,7 @@ def loadSimulationData(datafile,numSamples,samplesOffset):
         
     return samplesDataDict
 
-def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
+def runFitting(dataType='bee',ndimsGaussianList=[None,1],
     datafile=None,numSamples=None,samplesOffset=None,outputfilename=None,
     runLandauAnalysis=True,runGaussianMixtureAnalysis=True,
     verbose=True):
@@ -101,35 +102,17 @@ def runFitting(dataType='bee',numNuMax=10,ndimsGaussianList=[None,1],
         finalStates = dataDict['finalStates']
         
         if runLandauAnalysis:
-            # do dimensionality reduction first if we only want to fit to
-            # the first principal component (it's equivalent and makes the
-            # mathematica code run much faster)
-            if numNuMax == 1:
-                vals,vecs = principalComponents(finalStates)
-                sampleMean = np.mean(finalStates,axis=0)
-                transformedData = np.dot(finalStates-sampleMean,
-                                         np.transpose(vecs))[:,:numNuMax]
-                transformedData = np.real_if_close(transformedData)
-                finalStatesLandau = transformedData
-                # For some reason mathematica chokes when the mean is zero
-                # (by definition here).  Add 1 to everything to avoid this
-                # (doesn't affect anything except the sample mean mu, which
-                # we fix below).
-                dataOffset = 1.
-            else:
-                finalStatesLandau = finalStates
-                dataOffset = 0.
+            finalStatesLandau = finalStates
+            dataOffset = 0.
         
             # run Landau analysis on final states
             startTime = time.time()
-            landauOutput = landauAnalysis(finalStatesLandau + dataOffset,
-                                          numNuMax=numNuMax)
+            landauOutput = landauAnalysis(finalStatesLandau + dataOffset)
             sampleMean = landauOutput.pop('mu') - dataOffset
             landauTimeMinutes = (time.time() - startTime)/60.
         
             landauOutput.update(
                        {'landauTimeMinutes': landauTimeMinutes,
-                        'numNuMax': numNuMax,
                         'sampleMean': sampleMean,
                         'gitHash': getGitHash(),
                        } )
@@ -174,7 +157,7 @@ if __name__ == '__main__':
     runLandauAnalysis = True
     runGaussianMixtureAnalysis = True
     dataType = 'simulation' # bee'
-    numNuMax = 1
+    #numNuMax = 1
     ndimsGaussianList = [None,1]
     # parameters for use in sampling from simulation data
     networkName = 'allToAll'
@@ -211,7 +194,6 @@ if __name__ == '__main__':
 
     # run the analysis
     dataDictDict = runFitting(dataType,
-                          numNuMax=numNuMax,
                           ndimsGaussianList=ndimsGaussianList,
                           runLandauAnalysis=runLandauAnalysis,
                           runGaussianMixtureAnalysis=runGaussianMixtureAnalysis,
