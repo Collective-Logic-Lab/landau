@@ -16,10 +16,10 @@ def svdInverse(mat,maxEig=1e10,minEig=1e-10,verbose=True):
     if any(w==0.):
         raise(ZeroDivisionError, "Singular matrix.")
     wInv = w ** -1
-    largeIndices = np.nonzero( abs(wInv) > maxEig )
+    largeIndices = np.nonzero( abs(wInv) > maxEig )[0]
     wInv[largeIndices] = maxEig*np.sign(wInv[largeIndices])
     
-    smallIndices = np.nonzero( abs(wInv) < minEig )
+    smallIndices = np.nonzero( abs(wInv) < minEig )[0]
     wInv[smallIndices] = minEig*np.sign(wInv[smallIndices])
     
     if verbose:
